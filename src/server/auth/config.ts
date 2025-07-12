@@ -14,15 +14,13 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      roles: string[];
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    roles?: string[];
+  }
 }
 
 /**
@@ -45,12 +43,20 @@ export const authConfig = {
   ],
   adapter: PrismaAdapter(db),
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      const userRoles = await db.userRole.findMany({
+        where: { userId: user.id },
+        include: { role: true },
+      });
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          roles: userRoles.map((ur) => ur.role.name),
+        },
+      };
+    },
   },
 } satisfies NextAuthConfig;
