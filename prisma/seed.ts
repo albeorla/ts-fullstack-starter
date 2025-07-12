@@ -49,6 +49,33 @@ async function main() {
 
   console.log("Assigned permissions to roles:", { adminPermission });
 
+  // Create a default admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: "admin@example.com" },
+    update: {},
+    create: {
+      name: "Admin User",
+      email: "admin@example.com",
+    },
+  });
+
+  // Assign ADMIN role to the admin user
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: adminUser.id,
+        roleId: adminRole.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: adminUser.id,
+      roleId: adminRole.id,
+    },
+  });
+
+  console.log("Created admin user:", adminUser);
+
   console.log("Seeding finished.");
 }
 
