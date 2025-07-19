@@ -16,7 +16,8 @@ export const userRouter = createTRPCRouter({
       });
 
       if (roles.length !== roleNames.length) {
-        throw new Error("One or more roles not found.");
+        const missingRoles = roleNames.filter(name => !roles.some(role => role.name === name));
+        throw new Error(`Roles not found: ${missingRoles.join(', ')}`);
       }
 
       return ctx.db.$transaction(async (prisma) => {

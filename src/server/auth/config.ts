@@ -29,11 +29,13 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
+const isTestMode = process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true";
+
 export const authConfig = {
   providers: [
     DiscordProvider,
     // Add test-only credentials provider
-    ...(process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true"
+    ...(isTestMode
       ? [
           CredentialsProvider({
             id: "test-credentials",
@@ -44,20 +46,21 @@ export const authConfig = {
             },
             async authorize(credentials) {
               // In test mode, be more permissive
-              if (process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true") {
+              if (isTestMode) {
                 if (credentials?.email && credentials?.password) {
+                  const email = credentials.email as string;
                   try {
                     // Find or create test user
                     const user = await db.user.upsert({
-                      where: { email: credentials.email },
+                      where: { email },
                       update: {
-                        name: credentials.email.split("@")[0] || "Test User",
+                        name: email.includes("@") ? email.split("@")[0] : "Test User",
                         image: "https://github.com/ghost.png",
                         emailVerified: new Date(), // Add email verified date
                       },
                       create: {
-                        email: credentials.email,
-                        name: credentials.email.split("@")[0] || "Test User",
+                        email,
+                        name: email.includes("@") ? email.split("@")[0] : "Test User",
                         image: "https://github.com/ghost.png",
                         emailVerified: new Date(), // Add email verified date
                       },
@@ -93,7 +96,9 @@ export const authConfig = {
                       emailVerified: user.emailVerified,
                     };
                   } catch (error) {
-                    console.error("Test user creation error:", error);
+                    if (isTestMode) {
+                      console.error("Test user creation error:", error instanceof Error ? error.message : "Unknown error");
+                    }
                     return null;
                   }
                 }

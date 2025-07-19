@@ -13,6 +13,10 @@ export default function AdminPage() {
 
   const [selectedRoles, setSelectedRoles] = useState<Record<string, string[]>>({});
 
+  const isRoleSelected = (userId: string, role: string) => {
+    return selectedRoles[userId]?.includes(role) ?? users?.find((user) => user.id === userId)?.roles.some((r) => r.role.name === role) ?? false;
+  };
+
   const handleRoleChange = (userId: string, roleName: string) => {
     setSelectedRoles((prev) => {
       const currentRoles = prev[userId] ?? [];
@@ -24,8 +28,8 @@ export default function AdminPage() {
   };
 
   const handleUpdateRoles = (userId: string) => {
-    const roles = selectedRoles[userId];
-    if (roles) {
+    const roles = selectedRoles[userId] ?? users?.find((user) => user.id === userId)?.roles.map((r) => r.role.name);
+    if (roles && roles.length > 0) {
       setUserRoles({ userId, roleNames: roles });
     }
   };
@@ -46,7 +50,7 @@ export default function AdminPage() {
                   <label key={role} className="flex items-center gap-1">
                     <input
                       type="checkbox"
-                      checked={selectedRoles[user.id]?.includes(role) ?? user.roles.some(r => r.role.name === role)}
+                      checked={isRoleSelected(user.id, role)}
                       onChange={() => handleRoleChange(user.id, role)}
                     />
                     {role}
