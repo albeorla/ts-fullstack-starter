@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 import { db } from "~/server/db";
 
@@ -14,15 +15,13 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      roles: string[];
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    roles?: string[];
+  }
 }
 
 /**
@@ -30,9 +29,86 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
+const isTestMode = process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true";
+
 export const authConfig = {
   providers: [
     DiscordProvider,
+    // Add test-only credentials provider
+    ...(isTestMode
+      ? [
+          CredentialsProvider({
+            id: "test-credentials",
+            name: "Test Login",
+            credentials: {
+              email: { label: "Email", type: "email" },
+              password: { label: "Password", type: "password" },
+            },
+            async authorize(credentials) {
+              // In test mode, be more permissive
+              if (isTestMode) {
+                if (credentials?.email && credentials?.password) {
+                  const email = credentials.email as string;
+                  try {
+                    // Find or create test user
+                    const user = await db.user.upsert({
+                      where: { email },
+                      update: {
+                        name: email.includes("@") ? email.split("@")[0] : "Test User",
+                        image: "https://github.com/ghost.png",
+                        emailVerified: new Date(), // Add email verified date
+                      },
+                      create: {
+                        email,
+                        name: email.includes("@") ? email.split("@")[0] : "Test User",
+                        image: "https://github.com/ghost.png",
+                        emailVerified: new Date(), // Add email verified date
+                      },
+                    });
+
+                    // Ensure the user has the necessary roles
+                    const defaultRole = await db.role.findFirst({
+                      where: { name: "USER" },
+                    });
+
+                    if (defaultRole) {
+                      await db.userRole.upsert({
+                        where: {
+                          userId_roleId: {
+                            userId: user.id,
+                            roleId: defaultRole.id,
+                          },
+                        },
+                        update: {},
+                        create: {
+                          userId: user.id,
+                          roleId: defaultRole.id,
+                        },
+                      });
+                    }
+
+                    // Return user object in the format NextAuth expects
+                    return {
+                      id: user.id,
+                      email: user.email,
+                      name: user.name,
+                      image: user.image,
+                      emailVerified: user.emailVerified,
+                    };
+                  } catch (error) {
+                    if (isTestMode) {
+                      console.error("Test user creation error:", error instanceof Error ? error.message : "Unknown error");
+                    }
+                    return null;
+                  }
+                }
+              }
+              
+              return null;
+            },
+          }),
+        ]
+      : []),
     /**
      * ...add more providers here.
      *
@@ -45,12 +121,20 @@ export const authConfig = {
   ],
   adapter: PrismaAdapter(db),
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      const userRoles = await db.userRole.findMany({
+        where: { userId: user.id },
+        include: { role: true },
+      });
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          roles: userRoles.map((ur) => ur.role.name),
+        },
+      };
+    },
   },
 } satisfies NextAuthConfig;
