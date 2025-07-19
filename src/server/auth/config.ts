@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 import { db } from "~/server/db";
 
@@ -31,6 +32,78 @@ declare module "next-auth" {
 export const authConfig = {
   providers: [
     DiscordProvider,
+    // Add test-only credentials provider
+    ...(process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true"
+      ? [
+          CredentialsProvider({
+            id: "test-credentials",
+            name: "Test Login",
+            credentials: {
+              email: { label: "Email", type: "email" },
+              password: { label: "Password", type: "password" },
+            },
+            async authorize(credentials) {
+              // In test mode, be more permissive
+              if (process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true") {
+                if (credentials?.email && credentials?.password) {
+                  try {
+                    // Find or create test user
+                    const user = await db.user.upsert({
+                      where: { email: credentials.email },
+                      update: {
+                        name: credentials.email.split("@")[0] || "Test User",
+                        image: "https://github.com/ghost.png",
+                        emailVerified: new Date(), // Add email verified date
+                      },
+                      create: {
+                        email: credentials.email,
+                        name: credentials.email.split("@")[0] || "Test User",
+                        image: "https://github.com/ghost.png",
+                        emailVerified: new Date(), // Add email verified date
+                      },
+                    });
+
+                    // Ensure the user has the necessary roles
+                    const defaultRole = await db.role.findFirst({
+                      where: { name: "USER" },
+                    });
+
+                    if (defaultRole) {
+                      await db.userRole.upsert({
+                        where: {
+                          userId_roleId: {
+                            userId: user.id,
+                            roleId: defaultRole.id,
+                          },
+                        },
+                        update: {},
+                        create: {
+                          userId: user.id,
+                          roleId: defaultRole.id,
+                        },
+                      });
+                    }
+
+                    // Return user object in the format NextAuth expects
+                    return {
+                      id: user.id,
+                      email: user.email,
+                      name: user.name,
+                      image: user.image,
+                      emailVerified: user.emailVerified,
+                    };
+                  } catch (error) {
+                    console.error("Test user creation error:", error);
+                    return null;
+                  }
+                }
+              }
+              
+              return null;
+            },
+          }),
+        ]
+      : []),
     /**
      * ...add more providers here.
      *
