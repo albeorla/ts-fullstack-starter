@@ -1,63 +1,310 @@
-import Link from "next/link";
+"use client";
 
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import { auth } from "~/server/auth";
-import { HydrateClient } from "~/trpc/server";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { api } from "~/trpc/react";
 
-export default async function Home() {
-  const session = await auth();
+export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [selectedRoles, setSelectedRoles] = useState<Record<string, string[]>>(
+    {},
+  );
+
+  // Admin features
+  const {
+    data: users,
+    refetch,
+    error: usersError,
+  } = api.user.getAll.useQuery(undefined, {
+    enabled: session?.user.roles?.includes("ADMIN") ?? false,
+  });
+  const { mutate: setUserRoles } = api.user.setUserRoles.useMutation({
+    onSuccess: () => {
+      toast.success("User roles updated successfully");
+      void refetch();
+    },
+    onError: () => {
+      toast.error("Failed to update user roles");
+    },
+  });
+
+  useEffect(() => {
+    // Redirect to auth page if not authenticated
+    if (status === "unauthenticated") {
+      router.push("/auth");
+    }
+  }, [status, router]);
+
+  const handleSignOut = async () => {
+    toast.promise(
+      signOut({ redirect: false }).then(() => {
+        router.push("/auth");
+      }),
+      {
+        loading: "Signing out...",
+        success: "Successfully signed out!",
+        error: "Failed to sign out",
+      },
+    );
+  };
+
+  const isRoleSelected = (userId: string, role: string) => {
+    return (
+      selectedRoles[userId]?.includes(role) ??
+      users
+        ?.find((user) => user.id === userId)
+        ?.roles.some((r) => r.role.name === role) ??
+      false
+    );
+  };
+
+  const handleRoleChange = (userId: string, roleName: string) => {
+    setSelectedRoles((prev) => {
+      const currentRoles =
+        prev[userId] ??
+        users
+          ?.find((user) => user.id === userId)
+          ?.roles.map((r) => r.role.name) ??
+        [];
+      const newRoles = currentRoles.includes(roleName)
+        ? currentRoles.filter((r) => r !== roleName)
+        : [...currentRoles, roleName];
+      return { ...prev, [userId]: newRoles };
+    });
+  };
+
+  const handleUpdateRoles = (userId: string) => {
+    const roles =
+      selectedRoles[userId] ??
+      users?.find((user) => user.id === userId)?.roles.map((r) => r.role.name);
+    if (roles && roles.length > 0) {
+      setUserRoles({ userId, roleNames: roles });
+    }
+  };
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-b-2"></div>
+          <p className="text-muted-foreground mt-4">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  const isAdmin = session.user.roles?.includes("ADMIN");
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
+    <div className="bg-background min-h-screen">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <p className="text-muted-foreground text-sm">
+                Welcome back, {session.user.name ?? session.user.email}
               </p>
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-              >
-                <Button>{session ? "Sign out" : "Sign in"}</Button>
-              </Link>
-
-              {session?.user.roles?.includes("ADMIN") && (
-                <Link href="/admin">
-                  <Button variant="secondary">Admin Dashboard</Button>
-                </Link>
-              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm font-medium">{session.user.name}</p>
+                <p className="text-muted-foreground text-xs">
+                  {session.user.email}
+                </p>
+              </div>
+              <Button onClick={handleSignOut} variant="outline" size="sm">
+                Sign out
+              </Button>
             </div>
           </div>
         </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* User Info Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Information</CardTitle>
+              <CardDescription>Your profile details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <dl className="space-y-2">
+                <div>
+                  <dt className="text-muted-foreground text-sm font-medium">
+                    Name
+                  </dt>
+                  <dd className="text-sm">{session.user.name ?? "Not set"}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground text-sm font-medium">
+                    Email
+                  </dt>
+                  <dd className="text-sm">{session.user.email}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground text-sm font-medium">
+                    Roles
+                  </dt>
+                  <dd className="text-sm">
+                    {session.user.roles?.length > 0
+                      ? session.user.roles.join(", ")
+                      : "No roles assigned"}
+                  </dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
+
+          {/* Quick Stats Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Stats</CardTitle>
+              <CardDescription>Your activity overview</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">
+                    Total Sessions
+                  </span>
+                  <span className="text-2xl font-bold">12</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">
+                    Last Login
+                  </span>
+                  <span className="text-sm">Today</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Actions Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Common tasks</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button className="w-full" variant="outline" size="sm">
+                Edit Profile
+              </Button>
+              <Button className="w-full" variant="outline" size="sm">
+                View Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Admin Section */}
+        {isAdmin && (
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>
+                  Manage user roles and permissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {usersError ? (
+                  <p className="text-red-500">
+                    Error loading users: {usersError.message}
+                  </p>
+                ) : users ? (
+                  users.length > 0 ? (
+                    <div className="space-y-4">
+                      {users.map((user) => (
+                        <div
+                          key={user.id}
+                          className="flex items-center justify-between rounded-lg border p-4"
+                        >
+                          <div>
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-muted-foreground text-sm">
+                              {user.email}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="flex gap-3">
+                              {["ADMIN", "USER"].map((role) => (
+                                <label
+                                  key={role}
+                                  className="flex items-center gap-2 text-sm"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isRoleSelected(user.id, role)}
+                                    onChange={() =>
+                                      handleRoleChange(user.id, role)
+                                    }
+                                    className="rounded border-gray-300"
+                                  />
+                                  {role}
+                                </label>
+                              ))}
+                            </div>
+                            <Button
+                              onClick={() => handleUpdateRoles(user.id)}
+                              size="sm"
+                              variant="outline"
+                            >
+                              Update
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">No users found.</p>
+                  )
+                ) : (
+                  <p className="text-muted-foreground">Loading users...</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Welcome to Your Dashboard</CardTitle>
+              <CardDescription>
+                This is your main application dashboard. Add your primary
+                content here.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Start building your application by adding components and
+                features to this dashboard. The layout is responsive and ready
+                for your content.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </main>
-    </HydrateClient>
+    </div>
   );
 }
