@@ -11,11 +11,11 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
-  
+
   // Use different reporters for CI vs local
-  reporter: isCI 
-    ? [['list'], ['html', { open: 'never' }]]  // CI: list output + HTML report (no server)
-    : [['list'], ['html', { open: 'on-failure' }]], // Local: list output + HTML on failure only
+  reporter: isCI
+    ? [["list"], ["html", { open: "never" }]] // CI: list output + HTML report (no server)
+    : [["list"], ["html", { open: "on-failure" }]], // Local: list output + HTML on failure only
 
   use: {
     baseURL: "http://localhost:3001",

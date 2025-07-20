@@ -12,6 +12,7 @@ Welcome to the T3 Stack Starter Application documentation. This directory contai
 
 ### Technical Guides
 - **[Authentication Setup](./auth-setup.md)** - NextAuth.js configuration and OAuth provider setup
+- **[shadcn/ui Guide](./shadcn-ui-guide.md)** - Complete shadcn/ui implementation with Tailwind v4
 - **[Environment Configuration](./environment-setup.md)** - Environment variables and deployment configuration
 - **[Testing Guide](./testing-guide.md)** - Testing strategy and implementation examples
 - **[Deployment Guide](./deployment-guide.md)** - Production deployment instructions
@@ -31,10 +32,13 @@ Welcome to the T3 Stack Starter Application documentation. This directory contai
 ## 📋 Project Overview
 
 This T3 Stack application includes:
-- **Frontend**: Next.js 15 with React 19 and Tailwind CSS
+- **Frontend**: Next.js 15 with React 19 and **Tailwind CSS v4**
+- **UI Components**: Complete **shadcn/ui** suite (25+ components) 
 - **Backend**: tRPC API with type-safe procedures
 - **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js with Discord OAuth
+- **Authentication**: NextAuth.js v5 with Discord OAuth
+- **Icons**: Lucide React icon library
+- **Testing**: Playwright E2E testing suite
 - **Deployment**: Vercel-ready with multi-platform support
 
 ## 🔄 Documentation Updates

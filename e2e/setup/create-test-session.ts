@@ -13,9 +13,9 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
   const {
     email = "test@example.com",
     name = "Test User",
-    role = "USER"
+    role = "USER",
   } = options;
-  
+
   console.log(`Creating test session for ${role} user...`);
 
   try {
@@ -45,7 +45,7 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
       await prisma.userRole.deleteMany({
         where: { userId: testUser.id },
       });
-      
+
       // Assign the requested role
       await prisma.userRole.create({
         data: {
@@ -93,4 +93,4 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
   }
 }
 
-export { createTestSession }; 
+export { createTestSession };

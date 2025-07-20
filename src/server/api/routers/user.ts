@@ -3,7 +3,9 @@ import { adminProcedure, createTRPCRouter } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   getAll: adminProcedure.query(({ ctx }) => {
-    return ctx.db.user.findMany({ include: { roles: { include: { role: true } } } });
+    return ctx.db.user.findMany({
+      include: { roles: { include: { role: true } } },
+    });
   }),
 
   setUserRoles: adminProcedure
@@ -16,8 +18,10 @@ export const userRouter = createTRPCRouter({
       });
 
       if (roles.length !== roleNames.length) {
-        const missingRoles = roleNames.filter(name => !roles.some(role => role.name === name));
-        throw new Error(`Roles not found: ${missingRoles.join(', ')}`);
+        const missingRoles = roleNames.filter(
+          (name) => !roles.some((role) => role.name === name),
+        );
+        throw new Error(`Roles not found: ${missingRoles.join(", ")}`);
       }
 
       return ctx.db.$transaction(async (prisma) => {
