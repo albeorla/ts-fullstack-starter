@@ -131,7 +131,7 @@ export const authConfig = {
   ],
   adapter: PrismaAdapter(db),
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // For OAuth providers (Discord, etc.), ensure user has at least the USER role
       if (account?.provider !== "test-credentials" && user.id) {
         const existingRoles = await db.userRole.findMany({

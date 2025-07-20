@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { adminProcedure, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+} from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   getAll: adminProcedure.query(({ ctx }) => {
@@ -26,14 +30,17 @@ export const userRouter = createTRPCRouter({
 
       const totalSessions = user.sessions.length;
       const lastSession = user.sessions[0];
-      const lastLogin = lastSession 
-        ? new Date(lastSession.expires.getTime() - (30 * 24 * 60 * 60 * 1000)) // Approximate login time (30 days before expiry)
+      const lastLogin = lastSession
+        ? new Date(lastSession.expires.getTime() - 30 * 24 * 60 * 60 * 1000) // Approximate login time (30 days before expiry)
         : null;
 
       return {
         totalSessions,
         lastLogin,
-        accountCreated: user.sessions.length > 0 ? user.sessions[user.sessions.length - 1] : null,
+        accountCreated:
+          user.sessions.length > 0
+            ? user.sessions[user.sessions.length - 1]
+            : null,
       };
     }),
 

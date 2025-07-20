@@ -17,17 +17,23 @@ import { api } from "~/trpc/react";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [selectedRoles, setSelectedRoles] = useState<Record<string, string[]>>({});
+  const [selectedRoles, setSelectedRoles] = useState<Record<string, string[]>>(
+    {},
+  );
 
   // Admin features
-  const { data: users, refetch, error: usersError } = api.user.getAll.useQuery(undefined, {
+  const {
+    data: users,
+    refetch,
+    error: usersError,
+  } = api.user.getAll.useQuery(undefined, {
     enabled: session?.user.roles?.includes("ADMIN") ?? false,
   });
-  
+
   // User stats
   const { data: userStats } = api.user.getStats.useQuery(
     { userId: session?.user?.id ?? "" },
-    { enabled: !!session?.user?.id }
+    { enabled: !!session?.user?.id },
   );
 
   const { mutate: setUserRoles } = api.user.setUserRoles.useMutation({
@@ -166,12 +172,11 @@ export default function Dashboard() {
                     Roles
                   </dt>
                   <dd className="text-sm">
-                    {status === "loading" 
-                      ? "Loading..." 
-                      : session.user.roles && session.user.roles.length > 0
+                    {!session?.user?.roles
+                      ? "Loading..."
+                      : session.user.roles.length > 0
                         ? session.user.roles.join(", ")
-                        : "No roles assigned"
-                    }
+                        : "No roles assigned"}
                   </dd>
                 </div>
               </dl>
@@ -199,13 +204,12 @@ export default function Dashboard() {
                     Last Login
                   </span>
                   <span className="text-sm">
-                    {userStats?.lastLogin 
-                      ? new Intl.DateTimeFormat('en-US', {
-                          dateStyle: 'medium',
-                          timeStyle: 'short'
+                    {userStats?.lastLogin
+                      ? new Intl.DateTimeFormat("en-US", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
                         }).format(userStats.lastLogin)
-                      : 'Never'
-                    }
+                      : "Never"}
                   </span>
                 </div>
               </div>
