@@ -1,19 +1,29 @@
-# Create T3 App
+# T3 Stack + shadcn/ui Starter
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Modern full-stack TypeScript application with authentication, RBAC, and a complete UI component library.
 
-## What's next? How do I make an app with this?
+## 🚀 Tech Stack
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+This project uses cutting-edge technologies:
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Framework**: [Next.js 15](https://nextjs.org) + [React 19](https://react.dev)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- **Backend**: [tRPC](https://trpc.io) with type-safe APIs
+- **Database**: [PostgreSQL](https://postgresql.org) + [Prisma ORM](https://prisma.io)
+- **Authentication**: [NextAuth.js v5](https://next-auth.js.org) with Discord OAuth
+- **UI Components**: Complete shadcn/ui component suite (25+ components)
+- **Icons**: [Lucide React](https://lucide.dev)
+- **Testing**: [Playwright](https://playwright.dev) for E2E testing
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## ✨ shadcn/ui Implementation
+
+This project showcases a **production-ready shadcn/ui setup** with:
+
+- **Tailwind v4**: Using the latest `@theme` directive for CSS variables
+- **Complete Component Suite**: All major shadcn/ui components pre-installed
+- **Modern Variants**: Class Variance Authority (CVA) for component variants
+- **Proper Theming**: CSS variables with dark/light mode support
+- **Type Safety**: Full TypeScript integration across all components
 
 ## Learn More
 
