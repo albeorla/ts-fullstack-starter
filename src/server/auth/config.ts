@@ -131,6 +131,31 @@ export const authConfig = {
   ],
   adapter: PrismaAdapter(db),
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // For OAuth providers (Discord, etc.), ensure user has at least the USER role
+      if (account?.provider !== "test-credentials" && user.id) {
+        const existingRoles = await db.userRole.findMany({
+          where: { userId: user.id },
+        });
+
+        // If user has no roles, assign the default USER role
+        if (existingRoles.length === 0) {
+          const defaultRole = await db.role.findFirst({
+            where: { name: "USER" },
+          });
+
+          if (defaultRole) {
+            await db.userRole.create({
+              data: {
+                userId: user.id,
+                roleId: defaultRole.id,
+              },
+            });
+          }
+        }
+      }
+      return true;
+    },
     session: async ({ session, user }) => {
       const userRoles = await db.userRole.findMany({
         where: { userId: user.id },

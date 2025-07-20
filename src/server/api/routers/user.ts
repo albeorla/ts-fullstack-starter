@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { adminProcedure, createTRPCRouter } from "~/server/api/trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   getAll: adminProcedure.query(({ ctx }) => {
@@ -7,6 +7,35 @@ export const userRouter = createTRPCRouter({
       include: { roles: { include: { role: true } } },
     });
   }),
+
+  getStats: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        include: {
+          sessions: {
+            orderBy: { expires: "desc" },
+          },
+        },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const totalSessions = user.sessions.length;
+      const lastSession = user.sessions[0];
+      const lastLogin = lastSession 
+        ? new Date(lastSession.expires.getTime() - (30 * 24 * 60 * 60 * 1000)) // Approximate login time (30 days before expiry)
+        : null;
+
+      return {
+        totalSessions,
+        lastLogin,
+        accountCreated: user.sessions.length > 0 ? user.sessions[user.sessions.length - 1] : null,
+      };
+    }),
 
   setUserRoles: adminProcedure
     .input(z.object({ userId: z.string(), roleNames: z.array(z.string()) }))
