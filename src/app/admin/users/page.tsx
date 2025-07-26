@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, Users, Shield, Mail, Calendar } from "lucide-react";
+import { Users, Shield, Mail, Calendar } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -25,18 +25,21 @@ import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { api } from "~/trpc/react";
 import { UserRoleForm } from "./_components/user-role-form";
+import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
+import { EmptyState } from "~/components/ui/empty-state";
+import { SkeletonUserCard } from "~/components/ui/skeleton-card";
 
 export default function UsersPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   // Always call hooks, but conditionally enable them
-  const { data: users, refetch } = api.user.getAll.useQuery(undefined, {
+  const { data: users, refetch, isLoading: isLoadingUsers } = api.user.getAll.useQuery(undefined, {
     enabled: session?.user.roles?.includes("ADMIN") ?? false,
   });
-  const { data: roles } = api.role.getAll.useQuery(undefined, {
+  const { data: roles, isLoading: isLoadingRoles } = api.role.getAll.useQuery(undefined, {
     enabled: session?.user.roles?.includes("ADMIN") ?? false,
   });
 
@@ -49,19 +52,6 @@ export default function UsersPage() {
       toast.error(`Failed to update user roles: ${error.message}`);
     },
   });
-
-  if (status === "loading") {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex h-64 items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-            <p className="mt-2 text-gray-600">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!session?.user.roles?.includes("ADMIN")) {
     router.push("/");
@@ -101,24 +91,19 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
-            Manage users and their role assignments
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => router.push("/")}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
-        </Button>
-      </div>
+    <AuthenticatedLayout>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold">User Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage users and their role assignments
+            </p>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8">
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -157,7 +142,14 @@ export default function UsersPage() {
 
       {/* Users List */}
       <div className="grid gap-4">
-        {users?.map((user) => (
+        {isLoadingUsers ? (
+          <>
+            <SkeletonUserCard />
+            <SkeletonUserCard />
+            <SkeletonUserCard />
+          </>
+        ) : users && users.length > 0 ? (
+          users.map((user) => (
           <Card key={user.id}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -179,7 +171,7 @@ export default function UsersPage() {
                     {user.emailVerified && (
                       <div className="text-muted-foreground flex items-center gap-2 text-sm">
                         <Calendar className="h-3 w-3" />
-                        Joined {formatDate(user.emailVerified)}
+                        Joined {formatDate(user.emailVerified.toString())}
                       </div>
                     )}
                   </div>
@@ -213,7 +205,14 @@ export default function UsersPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        ) : (
+          <EmptyState
+            icon={<Users className="h-12 w-12" />}
+            title="No users found"
+            description="No users have been created yet. Users will appear here once they sign up."
+          />
+        )}
       </div>
 
       {/* Role Assignment Dialog */}
@@ -237,6 +236,8 @@ export default function UsersPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+        </main>
+      </div>
+    </AuthenticatedLayout>
   );
 }

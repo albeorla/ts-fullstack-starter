@@ -104,7 +104,7 @@ export function RoleForm({ role, permissions, onSuccess }: RoleFormProps) {
           (p) => !currentPermissions.includes(p),
         );
         const permissionsToRemove = currentPermissions.filter(
-          (p) => !selectedPermissions.includes(p),
+          (p: string) => !selectedPermissions.includes(p),
         );
 
         // Add new permissions

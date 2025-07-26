@@ -35,9 +35,10 @@ import {
 import { Badge } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 import { RoleForm } from "./_components/role-form";
+import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
 
 export default function RolesPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
@@ -60,18 +61,6 @@ export default function RolesPage() {
     },
   });
 
-  // Redirect if not admin
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground mt-4">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (!session?.user.roles?.includes("ADMIN")) {
     router.push("/");
     return null;
@@ -93,25 +82,18 @@ export default function RolesPage() {
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Role Management</h1>
-              <p className="text-muted-foreground text-sm">
-                Manage roles and their permissions
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => router.push("/")}
-                variant="outline"
-                size="sm"
-              >
-                Back to Dashboard
-              </Button>
+    <AuthenticatedLayout>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold">Role Management</h1>
+                <p className="text-muted-foreground mt-1">
+                  Manage roles and their permissions
+                </p>
+              </div>
               <Dialog
                 open={isCreateDialogOpen}
                 onOpenChange={setIsCreateDialogOpen}
@@ -144,8 +126,7 @@ export default function RolesPage() {
               </Dialog>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -255,6 +236,7 @@ export default function RolesPage() {
           ))}
         </div>
       </main>
-    </div>
+      </div>
+    </AuthenticatedLayout>
   );
 }
