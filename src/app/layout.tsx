@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "~/components/ui/sonner";
+import { ThemeProvider } from "~/components/providers/theme-provider";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -22,12 +23,19 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
+    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <body>
-        <SessionProvider>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          <Toaster position="top-center" richColors />
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <Toaster position="top-center" richColors />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
