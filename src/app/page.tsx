@@ -2,7 +2,7 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -17,34 +17,12 @@ import { api } from "~/trpc/react";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [selectedRoles, setSelectedRoles] = useState<Record<string, string[]>>(
-    {},
-  );
-
-  // Admin features
-  const {
-    data: users,
-    refetch,
-    error: usersError,
-  } = api.user.getAll.useQuery(undefined, {
-    enabled: session?.user.roles?.includes("ADMIN") ?? false,
-  });
 
   // User stats
   const { data: userStats } = api.user.getStats.useQuery(
     { userId: session?.user?.id ?? "" },
     { enabled: !!session?.user?.id },
   );
-
-  const { mutate: setUserRoles } = api.user.setUserRoles.useMutation({
-    onSuccess: () => {
-      toast.success("User roles updated successfully");
-      void refetch();
-    },
-    onError: () => {
-      toast.error("Failed to update user roles");
-    },
-  });
 
   useEffect(() => {
     // Redirect to auth page if not authenticated
@@ -64,40 +42,6 @@ export default function Dashboard() {
         error: "Failed to sign out",
       },
     );
-  };
-
-  const isRoleSelected = (userId: string, role: string) => {
-    return (
-      selectedRoles[userId]?.includes(role) ??
-      users
-        ?.find((user) => user.id === userId)
-        ?.roles.some((r) => r.role.name === role) ??
-      false
-    );
-  };
-
-  const handleRoleChange = (userId: string, roleName: string) => {
-    setSelectedRoles((prev) => {
-      const currentRoles =
-        prev[userId] ??
-        users
-          ?.find((user) => user.id === userId)
-          ?.roles.map((r) => r.role.name) ??
-        [];
-      const newRoles = currentRoles.includes(roleName)
-        ? currentRoles.filter((r) => r !== roleName)
-        : [...currentRoles, roleName];
-      return { ...prev, [userId]: newRoles };
-    });
-  };
-
-  const handleUpdateRoles = (userId: string) => {
-    const roles =
-      selectedRoles[userId] ??
-      users?.find((user) => user.id === userId)?.roles.map((r) => r.role.name);
-    if (roles && roles.length > 0) {
-      setUserRoles({ userId, roleNames: roles });
-    }
   };
 
   if (status === "loading") {
@@ -229,79 +173,39 @@ export default function Dashboard() {
               <Button className="w-full" variant="outline" size="sm">
                 View Settings
               </Button>
+                      {isAdmin && (
+          <>
+            <Button
+              onClick={() => router.push("/admin/users")}
+              className="w-full"
+              variant="outline"
+              size="sm"
+            >
+              Manage Users
+            </Button>
+            <Button
+              onClick={() => router.push("/admin/roles")}
+              className="w-full"
+              variant="outline"
+              size="sm"
+            >
+              Manage Roles
+            </Button>
+            <Button
+              onClick={() => router.push("/admin/permissions")}
+              className="w-full"
+              variant="outline"
+              size="sm"
+            >
+              Manage Permissions
+            </Button>
+          </>
+        )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Admin Section */}
-        {isAdmin && (
-          <div className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>
-                  Manage user roles and permissions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {usersError ? (
-                  <p className="text-red-500">
-                    Error loading users: {usersError.message}
-                  </p>
-                ) : users ? (
-                  users.length > 0 ? (
-                    <div className="space-y-4">
-                      {users.map((user) => (
-                        <div
-                          key={user.id}
-                          className="flex items-center justify-between rounded-lg border p-4"
-                        >
-                          <div>
-                            <p className="font-medium">{user.name}</p>
-                            <p className="text-muted-foreground text-sm">
-                              {user.email}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex gap-3">
-                              {["ADMIN", "USER"].map((role) => (
-                                <label
-                                  key={role}
-                                  className="flex items-center gap-2 text-sm"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={isRoleSelected(user.id, role)}
-                                    onChange={() =>
-                                      handleRoleChange(user.id, role)
-                                    }
-                                    className="rounded border-gray-300"
-                                  />
-                                  {role}
-                                </label>
-                              ))}
-                            </div>
-                            <Button
-                              onClick={() => handleUpdateRoles(user.id)}
-                              size="sm"
-                              variant="outline"
-                            >
-                              Update
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No users found.</p>
-                  )
-                ) : (
-                  <p className="text-muted-foreground">Loading users...</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
+
 
         {/* Main Content Area */}
         <div className="mt-8">
@@ -309,15 +213,12 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle>Welcome to Your Dashboard</CardTitle>
               <CardDescription>
-                This is your main application dashboard. Add your primary
-                content here.
+                This is your main application dashboard. Use the quick actions above to manage your application.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Start building your application by adding components and
-                features to this dashboard. The layout is responsive and ready
-                for your content.
+                Your dashboard is now clean and focused. Use the "Manage Users", "Manage Roles", and "Manage Permissions" buttons above to access the dedicated admin interfaces.
               </p>
             </CardContent>
           </Card>

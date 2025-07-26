@@ -27,33 +27,71 @@ async function main() {
   console.log("Created roles:", { adminRole, userRole });
 
   // Create Permissions
-  const manageUsersPermission = await prisma.permission.upsert({
-    where: { name: "manage:users" },
-    update: {},
-    create: {
-      name: "manage:users",
-      description: "Allows managing users and their roles",
-    },
-  });
-
-  console.log("Created permissions:", { manageUsersPermission });
-
-  // Assign Permissions to Roles
-  const adminPermission = await prisma.rolePermission.upsert({
-    where: {
-      roleId_permissionId: {
-        roleId: adminRole.id,
-        permissionId: manageUsersPermission.id,
+  const permissions = await Promise.all([
+    prisma.permission.upsert({
+      where: { name: "manage:users" },
+      update: {},
+      create: {
+        name: "manage:users",
+        description: "Allows managing users and their roles",
       },
-    },
-    update: {},
-    create: {
-      roleId: adminRole.id,
-      permissionId: manageUsersPermission.id,
-    },
-  });
+    }),
+    prisma.permission.upsert({
+      where: { name: "manage:roles" },
+      update: {},
+      create: {
+        name: "manage:roles",
+        description: "Allows creating, editing, and deleting roles",
+      },
+    }),
+    prisma.permission.upsert({
+      where: { name: "manage:permissions" },
+      update: {},
+      create: {
+        name: "manage:permissions",
+        description: "Allows creating, editing, and deleting permissions",
+      },
+    }),
+    prisma.permission.upsert({
+      where: { name: "view:analytics" },
+      update: {},
+      create: {
+        name: "view:analytics",
+        description: "Allows viewing system analytics and reports",
+      },
+    }),
+    prisma.permission.upsert({
+      where: { name: "manage:content" },
+      update: {},
+      create: {
+        name: "manage:content",
+        description: "Allows managing application content",
+      },
+    }),
+  ]);
 
-  console.log("Assigned permissions to roles:", { adminPermission });
+  console.log("Created permissions:", permissions);
+
+  // Assign all permissions to ADMIN role
+  const adminPermissions = await Promise.all(
+    permissions.map((permission) =>
+      prisma.rolePermission.upsert({
+        where: {
+          roleId_permissionId: {
+            roleId: adminRole.id,
+            permissionId: permission.id,
+          },
+        },
+        update: {},
+        create: {
+          roleId: adminRole.id,
+          permissionId: permission.id,
+        },
+      }),
+    ),
+  );
+
+  console.log("Assigned permissions to admin role:", adminPermissions);
 
   // Create a default admin user
   const adminUser = await prisma.user.upsert({
