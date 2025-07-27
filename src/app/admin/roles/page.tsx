@@ -32,11 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import {
-  Badge,
-  getRoleBadgeVariant,
-  getPermissionBadgeVariant,
-} from "~/components/ui/badge";
+import { Badge } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 import { RoleForm } from "./_components/role-form";
 import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
@@ -45,7 +41,18 @@ export default function RolesPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<any>(null);
+  const [editingRole, setEditingRole] = useState<{
+    id: string;
+    name: string;
+    description?: string | null;
+    permissions: Array<{
+      permission: {
+        id: string;
+        name: string;
+        description?: string | null;
+      };
+    }>;
+  } | null>(null);
 
   // Always call hooks, but conditionally enable them
   const { data: roles, refetch } = api.role.getAll.useQuery(undefined, {
@@ -76,11 +83,22 @@ export default function RolesPage() {
     return null;
   }
 
-  const handleDeleteRole = (roleId: string, roleName: string) => {
+  const handleDeleteRole = (roleId: string, _roleName: string) => {
     deleteRole.mutate({ id: roleId });
   };
 
-  const handleEditRole = (role: any) => {
+  const handleEditRole = (role: {
+    id: string;
+    name: string;
+    description?: string | null;
+    permissions: Array<{
+      permission: {
+        id: string;
+        name: string;
+        description?: string | null;
+      };
+    }>;
+  }) => {
     setEditingRole(role);
     setIsCreateDialogOpen(true);
   };
@@ -128,7 +146,7 @@ export default function RolesPage() {
                   <div className="py-4">
                     <RoleForm
                       role={editingRole}
-                      permissions={permissions || []}
+                      permissions={permissions ?? []}
                       onSuccess={handleFormSuccess}
                     />
                   </div>
@@ -162,7 +180,7 @@ export default function RolesPage() {
                           )}
                         </CardTitle>
                         <CardDescription>
-                          {role.description || "No description provided"}
+                          {role.description ?? "No description provided"}
                         </CardDescription>
                       </div>
                     </div>
@@ -226,9 +244,7 @@ export default function RolesPage() {
                           {role.permissions.map((rp) => (
                             <Badge
                               key={rp.permission.id}
-                              variant={getPermissionBadgeVariant(
-                                rp.permission.name,
-                              )}
+                              variant="secondary"
                             >
                               {rp.permission.name}
                             </Badge>
@@ -246,7 +262,7 @@ export default function RolesPage() {
                         <div className="flex flex-wrap gap-2">
                           {role.users.map((ur) => (
                             <Badge key={ur.user.id} variant="outline">
-                              {ur.user.name || ur.user.email}
+                              {ur.user.name ?? ur.user.email}
                             </Badge>
                           ))}
                         </div>

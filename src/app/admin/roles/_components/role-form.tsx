@@ -6,19 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Badge } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 
 const roleSchema = z.object({
@@ -29,9 +16,24 @@ const roleSchema = z.object({
 
 type RoleFormData = z.infer<typeof roleSchema>;
 
+interface Permission {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
+interface Role {
+  id: string;
+  name: string;
+  description?: string | null;
+  permissions: Array<{
+    permission: Permission;
+  }>;
+}
+
 interface RoleFormProps {
-  role?: any;
-  permissions: any[];
+  role?: Role;
+  permissions: Permission[];
   onSuccess: () => void;
 }
 
@@ -42,8 +44,8 @@ export function RoleForm({ role, permissions, onSuccess }: RoleFormProps) {
   const form = useForm<RoleFormData>({
     resolver: zodResolver(roleSchema),
     defaultValues: {
-      name: role?.name || "",
-      description: role?.description || "",
+      name: role?.name ?? "",
+      description: role?.description ?? "",
       permissions: [],
     },
   });
@@ -77,10 +79,10 @@ export function RoleForm({ role, permissions, onSuccess }: RoleFormProps) {
     if (role) {
       form.reset({
         name: role.name,
-        description: role.description || "",
+        description: role.description ?? "",
       });
       setSelectedPermissions(
-        role.permissions.map((rp: any) => rp.permission.id),
+        role.permissions.map((rp) => rp.permission.id),
       );
     }
   }, [role, form]);
@@ -98,13 +100,13 @@ export function RoleForm({ role, permissions, onSuccess }: RoleFormProps) {
 
         // Handle permission changes
         const currentPermissions = role.permissions.map(
-          (rp: any) => rp.permission.id,
+          (rp) => rp.permission.id,
         );
         const permissionsToAdd = selectedPermissions.filter(
           (p) => !currentPermissions.includes(p),
         );
         const permissionsToRemove = currentPermissions.filter(
-          (p: string) => !selectedPermissions.includes(p),
+          (p) => !selectedPermissions.includes(p),
         );
 
         // Add new permissions

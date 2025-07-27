@@ -9,7 +9,6 @@ import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -19,9 +18,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
-import { Badge, getRoleBadgeVariant } from "~/components/ui/badge";
+import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { api } from "~/trpc/react";
 import { UserRoleForm } from "./_components/user-role-form";
@@ -33,7 +31,17 @@ export default function UsersPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    roles: Array<{
+      role: {
+        id: string;
+        name: string;
+      };
+    }>;
+  } | null>(null);
 
   // Always call hooks, but conditionally enable them
   const {
@@ -43,7 +51,7 @@ export default function UsersPage() {
   } = api.user.getAll.useQuery(undefined, {
     enabled: session?.user.roles?.includes("ADMIN") ?? false,
   });
-  const { data: roles, isLoading: isLoadingRoles } = api.role.getAll.useQuery(
+  const { data: roles } = api.role.getAll.useQuery(
     undefined,
     {
       enabled: session?.user.roles?.includes("ADMIN") ?? false,
@@ -74,7 +82,7 @@ export default function UsersPage() {
   const handleRoleUpdate = async (userId: string, roleIds: string[]) => {
     // Convert role IDs to role names
     const selectedRoles =
-      roles?.filter((role) => roleIds.includes(role.id)) || [];
+      roles?.filter((role) => roleIds.includes(role.id)) ?? [];
     const roleNames = selectedRoles.map((role) => role.name);
 
     await setUserRoles.mutateAsync({ userId, roleNames });
@@ -82,7 +90,17 @@ export default function UsersPage() {
     setSelectedUser(null);
   };
 
-  const handleEditRoles = (user: any) => {
+  const handleEditRoles = (user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    roles: Array<{
+      role: {
+        id: string;
+        name: string;
+      };
+    }>;
+  }) => {
     setSelectedUser(user);
     setIsRoleDialogOpen(true);
   };
@@ -132,7 +150,7 @@ export default function UsersPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">
-                  {users?.length || 0}
+                  {users?.length ?? 0}
                 </div>
               </CardContent>
             </Card>
@@ -148,7 +166,7 @@ export default function UsersPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-emerald-600">
-                  {roles?.length || 0}
+                  {roles?.length ?? 0}
                 </div>
               </CardContent>
             </Card>
@@ -165,8 +183,8 @@ export default function UsersPage() {
               <CardContent>
                 <div className="text-2xl font-bold text-red-600">
                   {users?.filter((user) =>
-                    user.roles.some((ur: any) => ur.role.name === "ADMIN"),
-                  ).length || 0}
+                    user.roles.some((ur) => ur.role.name === "ADMIN"),
+                  ).length ?? 0}
                 </div>
               </CardContent>
             </Card>
@@ -188,16 +206,16 @@ export default function UsersPage() {
                       <div className="flex items-center space-x-4">
                         <Avatar className="ring-primary/20 h-12 w-12 ring-2">
                           <AvatarImage
-                            src={user.image || ""}
-                            alt={user.name || ""}
+                            src={user.image ?? ""}
+                            alt={user.name ?? ""}
                           />
                           <AvatarFallback className="from-primary/20 to-primary/10 bg-gradient-to-br">
-                            {getUserInitials(user.name || user.email || "U")}
+                            {getUserInitials(user.name ?? user.email ?? "U")}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="text-lg font-semibold">
-                            {user.name || "Unnamed User"}
+                            {user.name ?? "Unnamed User"}
                           </h3>
                           <div className="text-muted-foreground flex items-center gap-2 text-sm">
                             <Mail className="h-3 w-3 text-blue-500" />
@@ -215,12 +233,10 @@ export default function UsersPage() {
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <div className="mb-2 flex flex-wrap justify-end gap-1">
-                            {user.roles.map((userRole: any) => (
+                            {user.roles.map((userRole) => (
                               <Badge
                                 key={userRole.role.id}
-                                variant={getRoleBadgeVariant(
-                                  userRole.role.name,
-                                )}
+                                variant="secondary"
                               >
                                 {userRole.role.name}
                               </Badge>
@@ -262,15 +278,15 @@ export default function UsersPage() {
                 <DialogTitle>Edit User Roles</DialogTitle>
                 <DialogDescription>
                   Assign or remove roles for{" "}
-                  {selectedUser?.name || selectedUser?.email}
+                  {selectedUser?.name ?? selectedUser?.email}
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4">
                 <UserRoleForm
                   user={selectedUser}
-                  roles={roles || []}
+                  roles={roles ?? []}
                   onSuccess={(roleIds) =>
-                    handleRoleUpdate(selectedUser?.id, roleIds)
+                    handleRoleUpdate(selectedUser?.id ?? "", roleIds)
                   }
                 />
               </div>

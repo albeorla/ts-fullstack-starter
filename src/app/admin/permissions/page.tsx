@@ -32,11 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import {
-  Badge,
-  getRoleBadgeVariant,
-  getPermissionBadgeVariant,
-} from "~/components/ui/badge";
+import { Badge } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 import { PermissionForm } from "./_components/permission-form";
 import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
@@ -45,7 +41,11 @@ export default function PermissionsPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingPermission, setEditingPermission] = useState<any>(null);
+  const [editingPermission, setEditingPermission] = useState<{
+    id: string;
+    name: string;
+    description?: string | null;
+  } | null>(null);
 
   // Always call hooks, but conditionally enable them
   const { data: permissions, refetch } = api.permission.getAll.useQuery(
@@ -83,7 +83,11 @@ export default function PermissionsPage() {
     deletePermission.mutate({ id: permissionId });
   };
 
-  const handleEditPermission = (permission: any) => {
+  const handleEditPermission = (permission: {
+    id: string;
+    name: string;
+    description?: string | null;
+  }) => {
     setEditingPermission(permission);
     setIsCreateDialogOpen(true);
   };

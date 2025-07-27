@@ -5,9 +5,27 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Badge } from "~/components/ui/badge";
 
+interface User {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  roles: Array<{
+    role: {
+      id: string;
+      name: string;
+    };
+  }>;
+}
+
+interface Role {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
 interface UserRoleFormProps {
-  user?: any;
-  roles: any[];
+  user?: User;
+  roles: Role[];
   onSuccess: (roleIds: string[]) => void;
 }
 
@@ -17,7 +35,7 @@ export function UserRoleForm({ user, roles, onSuccess }: UserRoleFormProps) {
   // Initialize with user's current roles
   useEffect(() => {
     if (user) {
-      setSelectedRoles(user.roles.map((ur: any) => ur.role.id));
+      setSelectedRoles(user.roles.map((ur) => ur.role.id));
     }
   }, [user]);
 
@@ -36,7 +54,7 @@ export function UserRoleForm({ user, roles, onSuccess }: UserRoleFormProps) {
   const handleCancel = () => {
     // Reset to original roles
     if (user) {
-      setSelectedRoles(user.roles.map((ur: any) => ur.role.id));
+      setSelectedRoles(user.roles.map((ur) => ur.role.id));
     }
     onSuccess([]); // This will close the dialog
   };
