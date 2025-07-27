@@ -46,6 +46,14 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+.tsbuildinfo
+
+# eslint cache
+.eslintcache
+
+# prettier cache
+.prettier-cache
+node_modules/.cache
 
 # idea files
 .idea
