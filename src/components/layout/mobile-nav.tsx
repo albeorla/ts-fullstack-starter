@@ -2,7 +2,13 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, Shield, Key, Settings as SettingsIcon } from "lucide-react";
+import {
+  Home,
+  Users,
+  Shield,
+  Key,
+  Settings as SettingsIcon,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 
@@ -43,7 +49,7 @@ export function MobileNav() {
   const filteredNavigation = navigation.filter((item) => item.show);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t md:hidden">
+    <div className="bg-background fixed right-0 bottom-0 left-0 z-40 border-t md:hidden">
       <nav className="flex items-center justify-around px-2 py-2">
         {filteredNavigation.map((item) => {
           const isActive = pathname === item.href;
@@ -55,21 +61,21 @@ export function MobileNav() {
               variant="ghost"
               size="sm"
               className={cn(
-                "flex flex-col items-center gap-1 h-auto py-2 px-3 min-w-0",
-                isActive && "text-primary"
+                "flex h-auto min-w-0 flex-col items-center gap-1 px-3 py-2",
+                isActive && "text-primary",
               )}
               onClick={() => router.push(item.href)}
             >
               <Icon
                 className={cn(
                   "h-5 w-5",
-                  isActive ? "text-primary" : "text-muted-foreground"
+                  isActive ? "text-primary" : "text-muted-foreground",
                 )}
               />
               <span
                 className={cn(
                   "text-xs",
-                  isActive ? "font-medium" : "text-muted-foreground"
+                  isActive ? "font-medium" : "text-muted-foreground",
                 )}
               >
                 {item.name}

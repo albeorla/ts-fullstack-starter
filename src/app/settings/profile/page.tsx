@@ -78,9 +78,9 @@ export default function ProfilePage() {
 
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-background">
+      <div className="bg-background min-h-screen">
         {/* Header */}
-        <header className="border-b bg-card">
+        <header className="bg-card border-b">
           <div className="container mx-auto px-4 py-6">
             <h1 className="text-3xl font-bold">Profile Settings</h1>
             <p className="text-muted-foreground mt-1">
@@ -90,13 +90,14 @@ export default function ProfilePage() {
         </header>
 
         <main className="container mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="mx-auto max-w-2xl space-y-6">
             {/* Profile Picture Section */}
             <Card>
               <CardHeader>
                 <CardTitle>Profile Picture</CardTitle>
                 <CardDescription>
-                  Your profile picture is currently managed through your OAuth provider
+                  Your profile picture is currently managed through your OAuth
+                  provider
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -107,13 +108,17 @@ export default function ProfilePage() {
                       alt={session?.user?.name ?? ""}
                     />
                     <AvatarFallback className="text-lg">
-                      {getUserInitials(session?.user?.name, session?.user?.email)}
+                      {getUserInitials(
+                        session?.user?.name,
+                        session?.user?.email,
+                      )}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">
-                      To change your profile picture, update it in your Discord account settings.
-                      Changes will be reflected here on your next login.
+                    <p className="text-muted-foreground text-sm">
+                      To change your profile picture, update it in your Discord
+                      account settings. Changes will be reflected here on your
+                      next login.
                     </p>
                   </div>
                 </div>
@@ -143,7 +148,7 @@ export default function ProfilePage() {
                         placeholder="Enter your full name"
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="email">Email Address</Label>
                       <Input
@@ -153,8 +158,9 @@ export default function ProfilePage() {
                         disabled
                         className="bg-muted"
                       />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Email cannot be changed as it&apos;s linked to your OAuth account
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Email cannot be changed as it&apos;s linked to your
+                        OAuth account
                       </p>
                     </div>
                   </div>
@@ -188,39 +194,43 @@ export default function ProfilePage() {
               <CardContent>
                 <div className="grid gap-4">
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <span className="text-muted-foreground text-sm font-medium">
                       User ID
                     </span>
-                    <span className="text-sm font-mono">
+                    <span className="font-mono text-sm">
                       {session?.user?.id}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <span className="text-muted-foreground text-sm font-medium">
                       Account Type
                     </span>
                     <span className="text-sm">
-                      {session?.user?.roles?.includes("ADMIN") ? "Administrator" : "Standard User"}
+                      {session?.user?.roles?.includes("ADMIN")
+                        ? "Administrator"
+                        : "Standard User"}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <span className="text-muted-foreground text-sm font-medium">
                       Roles
                     </span>
                     <span className="text-sm">
                       {session?.user?.roles?.join(", ") ?? "No roles assigned"}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <span className="text-muted-foreground text-sm font-medium">
                       Member Since
                     </span>
                     <span className="text-sm">
                       {session?.user?.emailVerified
-                        ? new Date(session.user.emailVerified).toLocaleDateString()
+                        ? new Date(
+                            session.user.emailVerified,
+                          ).toLocaleDateString()
                         : "Recently"}
                     </span>
                   </div>

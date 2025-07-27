@@ -41,18 +41,29 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
     });
 
     if (requestedRole) {
-      // Remove any existing roles for this user
+      // First, remove any existing roles that are not the requested role
       await prisma.userRole.deleteMany({
-        where: { userId: testUser.id },
-      });
-
-      // Assign the requested role
-      await prisma.userRole.create({
-        data: {
+        where: {
           userId: testUser.id,
-          roleId: requestedRole.id,
+          roleId: { not: requestedRole.id },
         },
       });
+
+      // Then ensure the requested role is assigned (handle race conditions)
+      try {
+        await prisma.userRole.create({
+          data: {
+            userId: testUser.id,
+            roleId: requestedRole.id,
+          },
+        });
+      } catch (error: any) {
+        // If it's a unique constraint error, the role is already assigned - that's fine
+        if (error?.code !== "P2002") {
+          console.error("Error creating test session:", error);
+          throw error;
+        }
+      }
     } else {
       console.warn(`Warning: ${role} role not found in database`);
     }

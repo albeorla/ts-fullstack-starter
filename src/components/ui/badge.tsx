@@ -19,18 +19,15 @@ const badgeVariants = cva(
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         admin:
           "border-transparent bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-sm [a&]:hover:shadow-md [a&]:hover:from-red-600 [a&]:hover:to-orange-600",
-        user:
-          "border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm [a&]:hover:shadow-md [a&]:hover:from-blue-600 [a&]:hover:to-indigo-600",
-        test:
-          "border-transparent bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm [a&]:hover:shadow-md [a&]:hover:from-purple-600 [a&]:hover:to-pink-600",
+        user: "border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm [a&]:hover:shadow-md [a&]:hover:from-blue-600 [a&]:hover:to-indigo-600",
+        test: "border-transparent bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm [a&]:hover:shadow-md [a&]:hover:from-purple-600 [a&]:hover:to-pink-600",
         permission:
           "border-transparent bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm [a&]:hover:shadow-md [a&]:hover:from-emerald-600 [a&]:hover:to-teal-600",
         success:
           "border-transparent bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-sm [a&]:hover:shadow-md",
         warning:
           "border-transparent bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-sm [a&]:hover:shadow-md",
-        info:
-          "border-transparent bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-sm [a&]:hover:shadow-md",
+        info: "border-transparent bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-sm [a&]:hover:shadow-md",
       },
     },
     defaultVariants: {
@@ -58,7 +55,9 @@ function Badge({
 }
 
 // Helper function to get role-specific badge variant
-function getRoleBadgeVariant(role: string): VariantProps<typeof badgeVariants>["variant"] {
+function getRoleBadgeVariant(
+  role: string,
+): VariantProps<typeof badgeVariants>["variant"] {
   const roleUpper = role.toUpperCase();
   switch (roleUpper) {
     case "ADMIN":
@@ -73,7 +72,9 @@ function getRoleBadgeVariant(role: string): VariantProps<typeof badgeVariants>["
 }
 
 // Helper function to get permission badge variant
-function getPermissionBadgeVariant(permission: string): VariantProps<typeof badgeVariants>["variant"] {
+function getPermissionBadgeVariant(
+  permission: string,
+): VariantProps<typeof badgeVariants>["variant"] {
   if (permission.startsWith("manage:")) return "permission";
   if (permission.startsWith("view:")) return "info";
   return "secondary";

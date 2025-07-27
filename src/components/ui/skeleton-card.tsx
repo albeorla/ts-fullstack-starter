@@ -25,7 +25,7 @@ export function SkeletonStatCard() {
         <Skeleton className="h-4 w-[100px]" />
         <div className="relative">
           <Skeleton className="h-6 w-6 rounded-lg" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg animate-pulse" />
+          <div className="from-primary/20 to-primary/10 absolute inset-0 animate-pulse rounded-lg bg-gradient-to-br" />
         </div>
       </CardHeader>
       <CardContent>
@@ -46,7 +46,7 @@ export function SkeletonUserCard() {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent rounded-full animate-pulse" />
+              <div className="from-primary/20 absolute inset-0 animate-pulse rounded-full bg-gradient-to-br to-transparent" />
             </div>
             <div className="space-y-2">
               <Skeleton className="h-5 w-[150px]" />
@@ -54,7 +54,7 @@ export function SkeletonUserCard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-right space-y-2">
+            <div className="space-y-2 text-right">
               <div className="flex gap-1">
                 <Skeleton className="h-5 w-12 rounded-md" />
                 <Skeleton className="h-5 w-12 rounded-md" />
@@ -72,6 +72,8 @@ export function SkeletonUserCard() {
 // Enhanced skeleton for loading text with shimmer effect
 export function SkeletonText({ className }: { className?: string }) {
   return (
-    <div className={`animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%] animate-[shimmer_2s_infinite] rounded ${className}`} />
+    <div
+      className={`from-muted via-muted/50 to-muted animate-[shimmer_2s_infinite] animate-pulse rounded bg-gradient-to-r bg-[length:200%_100%] ${className}`}
+    />
   );
 }

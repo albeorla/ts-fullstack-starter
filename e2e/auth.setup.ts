@@ -49,19 +49,34 @@ setup("authenticate", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Verify we're logged in by checking for the dashboard welcome message
-    const welcomeText = await page.locator("text=/Welcome back/i");
-    const isVisible = await welcomeText
+    // Verify we're logged in by checking for the dashboard greeting or key dashboard elements
+    const greetingText = await page.locator(
+      "text=/Good (morning|afternoon|evening)/i",
+    );
+    const dashboardHeading = await page.locator("h1");
+    const accountStatusCard = await page.locator("text=Account Status");
+
+    const isGreetingVisible = await greetingText
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+    const isAccountStatusVisible = await accountStatusCard
       .isVisible({ timeout: 5000 })
       .catch(() => false);
 
-    if (!isVisible) {
+    if (!isGreetingVisible && !isAccountStatusVisible) {
       // Debug information
       console.log("Page URL:", page.url());
-      const pageContent = await page.content();
       console.log("Auth verification failed. Debug info:");
       console.log("- Session token created:", sessionData.sessionToken);
       console.log("- User email:", sessionData.userEmail);
+
+      // Check page title and heading
+      const pageTitle = await page.title();
+      const headingText = await dashboardHeading
+        .textContent()
+        .catch(() => null);
+      console.log("- Page title:", pageTitle);
+      console.log("- Page heading:", headingText);
 
       // Check if there's an error on the page
       const errorText = await page
@@ -73,7 +88,7 @@ setup("authenticate", async ({ page, context }) => {
       }
 
       throw new Error(
-        "Failed to verify authentication - 'Welcome back' text not found",
+        "Failed to verify authentication - Dashboard elements not found",
       );
     }
 

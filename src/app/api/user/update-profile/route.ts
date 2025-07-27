@@ -12,12 +12,9 @@ export async function POST(request: NextRequest) {
   try {
     // Get the current session
     const session = await getServerSession(authConfig);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse and validate the request body
@@ -42,20 +39,19 @@ export async function POST(request: NextRequest) {
       success: true,
       user: updatedUser,
     });
-
   } catch (error) {
     console.error("Profile update error:", error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid data", details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

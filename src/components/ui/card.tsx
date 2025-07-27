@@ -10,8 +10,10 @@ const cardVariants = cva(
       variant: {
         default: "shadow-sm hover:shadow-md",
         elevated: "shadow-md hover:shadow-lg hover:scale-[1.01]",
-        interactive: "shadow-sm hover:shadow-lg hover:scale-[1.02] cursor-pointer",
-        stats: "shadow-md hover:shadow-xl hover:scale-[1.02] bg-gradient-to-br from-card to-card/50 border-primary/10",
+        interactive:
+          "shadow-sm hover:shadow-lg hover:scale-[1.02] cursor-pointer",
+        stats:
+          "shadow-md hover:shadow-xl hover:scale-[1.02] bg-gradient-to-br from-card to-card/50 border-primary/10",
       },
     },
     defaultVariants: {
@@ -20,10 +22,10 @@ const cardVariants = cva(
   },
 );
 
-function Card({ 
-  className, 
+function Card({
+  className,
   variant,
-  ...props 
+  ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof cardVariants>) {
   return (
     <div
