@@ -44,65 +44,64 @@ setup("authenticate as admin", async ({ page, context }) => {
       },
     ]);
 
-    // Navigate to admin page to verify authentication
+    // Navigate to verify admin authentication
     console.log("Navigating to verify admin authentication...");
     await page.goto("/admin");
 
-    // Wait for the page to load
-    await page.waitForTimeout(2000);
+    // Wait for navigation to complete
+    await page.waitForLoadState("networkidle");
 
-    // Verify admin authentication by checking for admin-specific elements
-    try {
-      // Check for admin-specific elements
-      const adminElements = [
-        page.getByRole("heading", { name: /admin/i }),
-        page.getByRole("link", { name: /users/i }),
-        page.getByRole("link", { name: /roles/i }),
-        page.getByRole("link", { name: /permissions/i }),
-        page.getByText(/admin dashboard/i),
-        page.getByText(/system overview/i),
-      ];
+    // Check if we stayed on the admin page or got redirected to auth
+    const currentUrl = page.url();
+    console.log("Current URL after navigation:", currentUrl);
 
-      let authenticated = false;
-      for (const element of adminElements) {
-        if (await element.isVisible({ timeout: 5000 }).catch(() => false)) {
-          authenticated = true;
-          break;
-        }
-      }
+    // If we're redirected to /auth, the session isn't working
+    if (currentUrl.includes("/auth")) {
+      // Take a screenshot for debugging
+      await page.screenshot({
+        path: "e2e/.auth/admin-auth-failure.png",
+        fullPage: true,
+      });
 
-      if (!authenticated) {
-        // Check if we were redirected away from admin
-        const currentUrl = page.url();
-        if (!currentUrl.includes("/admin")) {
-          console.error("Redirected away from admin page:", currentUrl);
-        }
+      console.error("Admin authentication failed - redirected to auth page");
+      
+      // Check cookies for debugging
+      const cookies = await context.cookies();
+      console.log("Cookies set:", cookies.map(c => ({ name: c.name, domain: c.domain, path: c.path })));
 
-        // Take a screenshot for debugging
-        await page.screenshot({
-          path: "e2e/.auth/admin-auth-failure.png",
-          fullPage: true,
-        });
-
-        console.error("Admin authentication verification failed");
-        console.log("Page URL:", currentUrl);
-        console.log("Page title:", await page.title());
-
-        throw new Error(
-          "Admin authentication setup failed - could not access admin area",
-        );
-      }
-
-      console.log("✅ Admin authentication successful!");
-      console.log("✅ Admin user:", sessionData.user.email);
-
-      // Save storage state
-      await page.context().storageState({ path: authFile });
-      console.log("✅ Admin auth state saved to:", authFile);
-    } catch (error) {
-      console.error("Admin authentication verification error:", error);
-      throw error;
+      throw new Error(
+        "Admin authentication setup failed - session not recognized by application",
+      );
     }
+
+    // Additional check - wait for admin page content
+    try {
+      // The admin page should be accessible
+      await page.waitForSelector('text=/Admin|Dashboard|Users|Roles|Permissions/', {
+        timeout: 10000,
+      });
+      console.log("✅ Admin authentication verified - admin content found");
+    } catch (error) {
+      // Take a screenshot for debugging
+      await page.screenshot({
+        path: "e2e/.auth/admin-verification-timeout.png",
+        fullPage: true,
+      });
+
+      console.error("Admin authentication verification timeout");
+      console.error("Page content:", await page.textContent("body").catch(() => "Could not get page content"));
+
+      throw new Error(
+        "Admin authentication setup failed - admin content not found",
+      );
+    }
+
+    console.log("✅ Admin authentication successful!");
+    console.log("✅ Admin user:", sessionData.user.email);
+
+    // Save storage state
+    await page.context().storageState({ path: authFile });
+    console.log("✅ Admin auth state saved to:", authFile);
   } catch (error) {
     console.error("Admin authentication setup failed:", error);
 

@@ -45,68 +45,63 @@ setup("authenticate", async ({ page, context }) => {
       },
     ]);
 
-    // Navigate to home page to verify authentication
+    // Navigate to verify authentication
     console.log("Navigating to verify authentication...");
     await page.goto("/");
 
-    // Wait longer for the page to load and session to be recognized
-    await page.waitForTimeout(2000);
+    // Wait for navigation to complete
+    await page.waitForLoadState("networkidle");
 
-    // Verify authentication by checking for authenticated elements
-    try {
-      // First try to find any sign that we're authenticated
-      const authenticatedElements = [
-        page.getByRole("button", { name: /sign out/i }),
-        page.getByRole("link", { name: /dashboard/i }),
-        page.getByRole("link", { name: /settings/i }),
-        page.getByText(/welcome/i),
-      ];
+    // Check if we stayed on the home page or got redirected to auth
+    const currentUrl = page.url();
+    console.log("Current URL after navigation:", currentUrl);
 
-      let authenticated = false;
-      for (const element of authenticatedElements) {
-        if (await element.isVisible({ timeout: 5000 }).catch(() => false)) {
-          authenticated = true;
-          break;
-        }
-      }
+    // If we're redirected to /auth, the session isn't working
+    if (currentUrl.includes("/auth")) {
+      // Take a screenshot for debugging
+      await page.screenshot({
+        path: "e2e/.auth/auth-failure.png",
+        fullPage: true,
+      });
 
-      if (!authenticated) {
-        // Take a screenshot for debugging
-        await page.screenshot({
-          path: "e2e/.auth/auth-failure.png",
-          fullPage: true,
-        });
+      console.error("Authentication failed - redirected to auth page");
+      
+      // Check cookies for debugging
+      const cookies = await context.cookies();
+      console.log("Cookies set:", cookies.map(c => ({ name: c.name, domain: c.domain, path: c.path })));
 
-        console.error(
-          "Authentication verification failed - no authenticated elements found",
-        );
-        console.log("Page URL:", page.url());
-        console.log("Page title:", await page.title());
-
-        // Log any visible error messages
-        const errorMessage = await page
-          .locator('[role="alert"], .error, .alert')
-          .first()
-          .textContent()
-          .catch(() => null);
-        if (errorMessage) {
-          console.error("Error message on page:", errorMessage);
-        }
-
-        throw new Error(
-          "Authentication setup failed - could not verify authenticated state",
-        );
-      }
-
-      console.log("✅ Authentication successful!");
-
-      // Save storage state
-      await page.context().storageState({ path: authFile });
-      console.log("✅ Auth state saved to:", authFile);
-    } catch (error) {
-      console.error("Authentication verification error:", error);
-      throw error;
+      throw new Error(
+        "Authentication setup failed - session not recognized by application",
+      );
     }
+
+    // Additional check - wait for the authenticated layout to load
+    try {
+      // The home page should show the greeting message for authenticated users
+      await page.waitForSelector('text=/Good (morning|afternoon|evening)/', {
+        timeout: 10000,
+      });
+      console.log("✅ Authentication verified - user greeting found");
+    } catch (error) {
+      // Take a screenshot for debugging
+      await page.screenshot({
+        path: "e2e/.auth/auth-verification-timeout.png",
+        fullPage: true,
+      });
+
+      console.error("Authentication verification timeout");
+      console.error("Page content:", await page.textContent("body").catch(() => "Could not get page content"));
+
+      throw new Error(
+        "Authentication setup failed - authenticated content not found",
+      );
+    }
+
+    console.log("✅ Authentication successful!");
+
+    // Save storage state
+    await page.context().storageState({ path: authFile });
+    console.log("✅ Auth state saved to:", authFile);
   } catch (error) {
     console.error("Authentication setup failed:", error);
 
