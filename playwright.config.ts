@@ -54,7 +54,7 @@ export default defineConfig({
       PORT: "3001",
       NODE_ENV: "test",
       ENABLE_TEST_AUTH: "true",
-      AUTH_SECRET: process.env.AUTH_SECRET || "test-secret-for-playwright",
+      AUTH_SECRET: process.env.AUTH_SECRET || randomBytes(32).toString("hex"),
     },
   },
 });
