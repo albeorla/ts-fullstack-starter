@@ -47,7 +47,9 @@ setup("authenticate", async ({ page, context }) => {
 
     // Navigate to home page to verify
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    
+    // Wait for the page to fully load including all API calls
+    await page.waitForLoadState("networkidle", { timeout: 30000 });
 
     // Verify we're logged in by checking for the dashboard greeting or key dashboard elements
     const greetingText = await page.locator(
@@ -56,11 +58,14 @@ setup("authenticate", async ({ page, context }) => {
     const dashboardHeading = await page.locator("h1");
     const accountStatusCard = await page.locator("text=Account Status");
 
+    // Wait a bit for any hydration to complete
+    await page.waitForTimeout(2000);
+
     const isGreetingVisible = await greetingText
-      .isVisible({ timeout: 5000 })
+      .isVisible({ timeout: 10000 })
       .catch(() => false);
     const isAccountStatusVisible = await accountStatusCard
-      .isVisible({ timeout: 5000 })
+      .isVisible({ timeout: 10000 })
       .catch(() => false);
 
     if (!isGreetingVisible && !isAccountStatusVisible) {
@@ -86,6 +91,9 @@ setup("authenticate", async ({ page, context }) => {
       if (errorText) {
         console.log("- Error on page:", errorText);
       }
+
+      // Take a screenshot for debugging
+      await page.screenshot({ path: "e2e/auth-setup-failure.png", fullPage: true });
 
       throw new Error(
         "Failed to verify authentication - Dashboard elements not found",

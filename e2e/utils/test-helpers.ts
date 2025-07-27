@@ -7,10 +7,33 @@ import { createTestSession } from "../setup/create-test-session";
  */
 
 /**
- * Wait for page to be fully loaded with network idle
+ * Waits for page to finish loading and network to become idle
  */
 export async function waitForPageLoad(page: Page) {
-  await page.waitForLoadState("networkidle");
+  // Wait for network to become idle (no ongoing requests)
+  await page.waitForLoadState("networkidle", { timeout: 30000 });
+
+  // Also wait for any loading indicators to disappear
+  const loadingIndicators = [
+    '[data-loading="true"]',
+    '[data-slot="skeleton"]',
+    ".loading",
+    ".skeleton",
+  ];
+
+  for (const selector of loadingIndicators) {
+    const elements = await page.locator(selector).all();
+    for (const element of elements) {
+      try {
+        await element.waitFor({ state: "hidden", timeout: 5000 });
+      } catch {
+        // Ignore if element doesn't hide (might be persistent)
+      }
+    }
+  }
+
+  // Give a small buffer for any final renders
+  await page.waitForTimeout(500);
 }
 
 /**

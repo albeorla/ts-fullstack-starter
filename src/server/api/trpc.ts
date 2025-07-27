@@ -29,6 +29,15 @@ import { db } from "~/server/db";
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
 
+  // Debug logging for test environment
+  if (process.env.NODE_ENV === "test") {
+    console.log("[TRPC Context] Session:", {
+      user: session?.user?.email,
+      roles: session?.user?.roles,
+      hasSession: !!session,
+    });
+  }
+
   return {
     db,
     session,
