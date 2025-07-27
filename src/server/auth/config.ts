@@ -82,9 +82,11 @@ export const authConfig = {
 
                     if (role) {
                       // Clear existing roles first for test accounts
-                      await db.userRole.deleteMany({
-                        where: { userId: user.id },
-                      });
+                      if (isTestMode && email.includes("@test.com")) {
+                        await db.userRole.deleteMany({
+                          where: { userId: user.id },
+                        });
+                      }
 
                       // Assign the appropriate role
                       await db.userRole.create({
