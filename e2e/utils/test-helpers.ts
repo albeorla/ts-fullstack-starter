@@ -92,41 +92,8 @@ export async function loginAsAdmin(page: Page) {
   await page.goto("/auth");
   await waitForPageLoad(page);
 
-  // If we're redirected to dashboard, we need to log out
-  if (!page.url().includes("/auth")) {
-    console.log("Already logged in, logging out first...");
-
-    // Try to find and click user menu - more specific selector
-    const userMenuButton = page
-      .locator("button")
-      .filter({ hasText: /@example\.com/ })
-      .first();
-    const userMenuButtonAlt = page.locator('[aria-haspopup="menu"]').last();
-
-    if (await userMenuButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await userMenuButton.click();
-    } else if (
-      await userMenuButtonAlt.isVisible({ timeout: 3000 }).catch(() => false)
-    ) {
-      await userMenuButtonAlt.click();
-    }
-
-    // Wait for menu to open and click sign out
-    await page.waitForTimeout(500); // Small delay for menu animation
-    const signOutButton = page.getByRole("menuitem", { name: "Sign out" });
-    if (await signOutButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await signOutButton.click();
-      await waitForPageLoad(page);
-
-      // Wait a bit for logout to complete
-      await page.waitForTimeout(1000);
-    }
-
-    // Try to go to auth page again
-    await page.goto("/auth");
-    await waitForPageLoad(page);
-  }
-
+  // Ensure the user is logged out before proceeding
+  await logoutIfLoggedIn(page);
   // Now we should be on the auth page - verify
   if (!page.url().includes("/auth")) {
     throw new Error("Failed to navigate to auth page for login");
