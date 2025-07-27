@@ -23,6 +23,7 @@
     "jsx": "preserve",
     "plugins": [{ "name": "next" }],
     "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
 
     /* Path Aliases */
     "baseUrl": ".",
