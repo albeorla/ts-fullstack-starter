@@ -60,8 +60,7 @@ export default function AuthPage() {
             Sign in with Discord
           </Button>
 
-          {(process.env.NODE_ENV === "development" ||
-            process.env.ENABLE_TEST_AUTH === "true") && (
+          {process.env.NODE_ENV === "development" && (
             <div className="space-y-2">
               <Button
                 onClick={() => handleTestSignIn("admin")}
