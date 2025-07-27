@@ -15,6 +15,10 @@ export async function createTestSession(role: "USER" | "ADMIN" = "USER") {
 
   console.log(`Creating test session for ${role} user...`);
 
+  // Use the same URL as the E2E test environment
+  const nextAuthUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3001";
+  console.log(`Using NEXTAUTH_URL: ${nextAuthUrl}`);
+
   try {
     // Ensure user exists with proper data
     const user = await prisma.user.upsert({
