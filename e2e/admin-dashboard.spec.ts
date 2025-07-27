@@ -12,32 +12,23 @@ test.describe("Admin Dashboard", () => {
     context,
   }) => {
     // Create an admin session
-    const adminSession = await createTestSession({
-      email: "admin@example.com",
-      name: "Admin User",
-      role: "ADMIN",
-    });
+    const adminSession = await createTestSession("ADMIN");
 
-    // Set the admin session cookie
+    // Set the admin session cookies
+    const cookieName = process.env.NODE_ENV === "production" 
+      ? "__Secure-authjs.session-token" 
+      : "authjs.session-token";
+
     await context.addCookies([
       {
-        name: "next-auth.session-token",
+        name: cookieName,
         value: adminSession.sessionToken,
         domain: "localhost",
         path: "/",
         httpOnly: true,
+        secure: false,
         sameSite: "Lax",
-        expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-      },
-      // Also set authjs cookie name (v5)
-      {
-        name: "authjs.session-token",
-        value: adminSession.sessionToken,
-        domain: "localhost",
-        path: "/",
-        httpOnly: true,
-        sameSite: "Lax",
-        expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
+        expires: Math.floor(Date.now() / 1000) + 86400, // 24 hours
       },
     ]);
 

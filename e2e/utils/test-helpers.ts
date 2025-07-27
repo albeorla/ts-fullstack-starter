@@ -41,35 +41,31 @@ export async function waitForPageLoad(page: Page) {
  */
 export async function setupAdminSession(context: BrowserContext) {
   // Create an admin session
-  const adminSession = await createTestSession({
-    email: "admin@example.com",
-    name: "Admin User",
-    role: "ADMIN",
-  });
+  const adminSession = await createTestSession("ADMIN");
 
   // Set the admin session cookies
+  const cookieName = process.env.NODE_ENV === "production" 
+    ? "__Secure-authjs.session-token" 
+    : "authjs.session-token";
+
   await context.addCookies([
     {
-      name: "next-auth.session-token",
+      name: cookieName,
       value: adminSession.sessionToken,
       domain: "localhost",
       path: "/",
       httpOnly: true,
+      secure: false,
       sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    },
-    {
-      name: "authjs.session-token",
-      value: adminSession.sessionToken,
-      domain: "localhost",
-      path: "/",
-      httpOnly: true,
-      sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
+      expires: Math.floor(Date.now() / 1000) + 86400, // 24 hours
     },
   ]);
 
-  return adminSession;
+  // Navigate to trigger session
+  const page = await context.newPage();
+  await page.goto("/");
+  await page.waitForTimeout(1000);
+  await page.close();
 }
 
 /**
@@ -77,35 +73,31 @@ export async function setupAdminSession(context: BrowserContext) {
  */
 export async function setupUserSession(context: BrowserContext) {
   // Create a user session
-  const userSession = await createTestSession({
-    email: "user@example.com",
-    name: "Regular User",
-    role: "USER",
-  });
+  const userSession = await createTestSession("USER");
 
   // Set the user session cookies
+  const cookieName = process.env.NODE_ENV === "production" 
+    ? "__Secure-authjs.session-token" 
+    : "authjs.session-token";
+
   await context.addCookies([
     {
-      name: "next-auth.session-token",
+      name: cookieName,
       value: userSession.sessionToken,
       domain: "localhost",
       path: "/",
       httpOnly: true,
+      secure: false,
       sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    },
-    {
-      name: "authjs.session-token",
-      value: userSession.sessionToken,
-      domain: "localhost",
-      path: "/",
-      httpOnly: true,
-      sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
+      expires: Math.floor(Date.now() / 1000) + 86400, // 24 hours
     },
   ]);
 
-  return userSession;
+  // Navigate to trigger session
+  const page = await context.newPage();
+  await page.goto("/");
+  await page.waitForTimeout(1000);
+  await page.close();
 }
 
 /**
