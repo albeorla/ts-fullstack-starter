@@ -409,7 +409,9 @@ test.describe("Responsive Design", () => {
           });
           await page.waitForTimeout(200);
 
-          const createButton = page.getByRole("button", { name: "Create User" });
+          const createButton = page.getByRole("button", {
+            name: "Create User",
+          });
           if (await createButton.isVisible()) {
             await createButton.click();
 
@@ -430,24 +432,24 @@ test.describe("Responsive Design", () => {
                 }
               }
 
-            // Form fields should be accessible
-            const inputs = dialog.locator("input, select, textarea");
-            const inputCount = await inputs.count();
+              // Form fields should be accessible
+              const inputs = dialog.locator("input, select, textarea");
+              const inputCount = await inputs.count();
 
-            for (let i = 0; i < inputCount; i++) {
-              const input = inputs.nth(i);
-              if (await input.isVisible()) {
-                const inputBox = await input.boundingBox();
-                if (inputBox) {
-                  // Input should fit within dialog/viewport
-                  expect(inputBox.width).toBeGreaterThan(0);
-                  expect(inputBox.height).toBeGreaterThan(0);
+              for (let i = 0; i < inputCount; i++) {
+                const input = inputs.nth(i);
+                if (await input.isVisible()) {
+                  const inputBox = await input.boundingBox();
+                  if (inputBox) {
+                    // Input should fit within dialog/viewport
+                    expect(inputBox.width).toBeGreaterThan(0);
+                    expect(inputBox.height).toBeGreaterThan(0);
+                  }
                 }
               }
-            }
 
-            // Close dialog
-            await page.keyboard.press("Escape");
+              // Close dialog
+              await page.keyboard.press("Escape");
             }
           }
         }
@@ -675,7 +677,9 @@ test.describe("Responsive Design", () => {
     }) => {
       await setupAdminSession(context);
 
-      for (const viewport of [viewports[0], viewports[1], viewports[2]].filter(Boolean)) {
+      for (const viewport of [viewports[0], viewports[1], viewports[2]].filter(
+        Boolean,
+      )) {
         if (viewport) {
           await page.setViewportSize({
             width: viewport.width,

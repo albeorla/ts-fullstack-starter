@@ -81,9 +81,7 @@ export function RoleForm({ role, permissions, onSuccess }: RoleFormProps) {
         name: role.name,
         description: role.description ?? "",
       });
-      setSelectedPermissions(
-        role.permissions.map((rp) => rp.permission.id),
-      );
+      setSelectedPermissions(role.permissions.map((rp) => rp.permission.id));
     }
   }, [role, form]);
 

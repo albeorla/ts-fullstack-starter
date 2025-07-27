@@ -72,7 +72,10 @@ export const authConfig = {
                     });
 
                     // Ensure the user has the necessary roles based on email
-                    const adminEmails = ["admin@example.com", "superuser@example.com"];
+                    const adminEmails = [
+                      "admin@example.com",
+                      "superuser@example.com",
+                    ];
                     const isAdmin = adminEmails.includes(email);
                     const roleName = isAdmin ? "ADMIN" : "USER";
 

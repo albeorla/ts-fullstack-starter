@@ -242,7 +242,7 @@ test.describe("Dashboard Functionality", () => {
 
       // Verify hover interaction works (simplified check)
       await expect(statsCard).toBeVisible();
-      
+
       // Note: Hover effects are often CSS-only and hard to test reliably
 
       await takeScreenshot(page, "stats-hover-effects");
@@ -267,7 +267,7 @@ test.describe("Dashboard Functionality", () => {
       const profileSection = page.getByText("Profile Overview").locator("..");
       await expect(page.getByText("Profile Overview")).toBeVisible();
 
-      // Verify user name and email are displayed somewhere on the page  
+      // Verify user name and email are displayed somewhere on the page
       await expect(page.getByText("Test User")).toBeVisible();
       await expect(page.getByText("test@example.com")).toBeVisible();
 

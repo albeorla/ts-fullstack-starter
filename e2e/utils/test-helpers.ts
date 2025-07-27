@@ -183,7 +183,7 @@ export async function verifyDashboard(page: Page) {
 
   // Check for the time-based greeting (with comma and space) - the main indicator
   const greeting = page.getByText(/Good (morning|afternoon|evening), /);
-  
+
   try {
     await expect(greeting).toBeVisible({ timeout: 8000 });
     return; // Successfully found greeting
@@ -195,9 +195,15 @@ export async function verifyDashboard(page: Page) {
   const dashboardElements = [
     { locator: page.getByText("Account Status"), name: "Account Status" },
     { locator: page.getByText("Profile Overview"), name: "Profile Overview" },
-    { locator: page.getByText("Your account information and settings"), name: "Profile description" },
+    {
+      locator: page.getByText("Your account information and settings"),
+      name: "Profile description",
+    },
     { locator: page.getByText("Recent Activity"), name: "Recent Activity" },
-    { locator: page.getByText("System Overview"), name: "System Overview (admin)" },
+    {
+      locator: page.getByText("System Overview"),
+      name: "System Overview (admin)",
+    },
     { locator: page.getByText("Total Sessions"), name: "Total Sessions card" },
     { locator: page.getByText("Your Roles"), name: "Your Roles card" },
   ];
@@ -218,13 +224,15 @@ export async function verifyDashboard(page: Page) {
 
   if (!found) {
     // Final check - look for the header container or main content
-    const header = page.locator('header h1').or(page.locator('h1')).first();
+    const header = page.locator("header h1").or(page.locator("h1")).first();
     if (await header.isVisible().catch(() => false)) {
       console.log("✅ Found page header, assuming dashboard loaded");
       return;
     }
-    
-    throw new Error("Dashboard not properly loaded - no recognizable elements found");
+
+    throw new Error(
+      "Dashboard not properly loaded - no recognizable elements found",
+    );
   }
 }
 
@@ -253,7 +261,9 @@ export async function verifyStatsCards(page: Page, expectedCards: string[]) {
  */
 export async function verifyRoleBadges(page: Page, expectedRoles: string[]) {
   for (const role of expectedRoles) {
-    const badge = page.locator(`[data-slot="badge"]:has-text("${role}")`).first();
+    const badge = page
+      .locator(`[data-slot="badge"]:has-text("${role}")`)
+      .first();
     await expect(badge).toBeVisible();
 
     // Verify gradient styling based on role

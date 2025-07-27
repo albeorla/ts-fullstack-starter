@@ -16,10 +16,10 @@ export default defineConfig({
   // Use different reporters for CI vs local
   reporter: isCI
     ? [
-        ["list"], 
-        ["html", { open: "never" }], 
+        ["list"],
+        ["html", { open: "never" }],
         ["github"],
-        ["junit", { outputFile: "test-results/results.xml" }]
+        ["junit", { outputFile: "test-results/results.xml" }],
       ] // CI: list output + HTML report + GitHub + JUnit
     : [["list"], ["html", { open: "on-failure" }]], // Local: list output + HTML on failure only
 

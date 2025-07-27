@@ -225,9 +225,7 @@ export default function ProfilePage() {
                     <span className="text-muted-foreground text-sm font-medium">
                       Member Since
                     </span>
-                    <span className="text-sm">
-                      Recently
-                    </span>
+                    <span className="text-sm">Recently</span>
                   </div>
                 </div>
               </CardContent>

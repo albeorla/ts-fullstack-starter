@@ -6,12 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Users, Shield, Mail, Calendar } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -51,12 +46,9 @@ export default function UsersPage() {
   } = api.user.getAll.useQuery(undefined, {
     enabled: session?.user.roles?.includes("ADMIN") ?? false,
   });
-  const { data: roles } = api.role.getAll.useQuery(
-    undefined,
-    {
-      enabled: session?.user.roles?.includes("ADMIN") ?? false,
-    },
-  );
+  const { data: roles } = api.role.getAll.useQuery(undefined, {
+    enabled: session?.user.roles?.includes("ADMIN") ?? false,
+  });
 
   const setUserRoles = api.user.setUserRoles.useMutation({
     onSuccess: () => {
@@ -234,10 +226,7 @@ export default function UsersPage() {
                         <div className="text-right">
                           <div className="mb-2 flex flex-wrap justify-end gap-1">
                             {user.roles.map((userRole) => (
-                              <Badge
-                                key={userRole.role.id}
-                                variant="secondary"
-                              >
+                              <Badge key={userRole.role.id} variant="secondary">
                                 {userRole.role.name}
                               </Badge>
                             ))}
