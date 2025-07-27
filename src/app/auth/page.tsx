@@ -28,9 +28,10 @@ export default function AuthPage() {
     await signIn("discord", { callbackUrl: "/" });
   };
 
-  const handleTestSignIn = async () => {
+  const handleTestSignIn = async (role: "admin" | "user") => {
+    const email = role === "admin" ? "admin@example.com" : "test@example.com";
     await signIn("test-credentials", {
-      email: "test@example.com",
+      email,
       password: "test123",
       callbackUrl: "/",
     });
@@ -60,14 +61,24 @@ export default function AuthPage() {
           </Button>
 
           {process.env.NODE_ENV === "development" && (
-            <Button
-              onClick={handleTestSignIn}
-              variant="outline"
-              className="w-full"
-              size="lg"
-            >
-              Test Login (Dev Only)
-            </Button>
+            <div className="space-y-2">
+              <Button
+                onClick={() => handleTestSignIn("admin")}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                Test Login (Admin)
+              </Button>
+              <Button
+                onClick={() => handleTestSignIn("user")}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                Test Login (User)
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

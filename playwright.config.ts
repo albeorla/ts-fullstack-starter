@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { randomBytes } from "crypto";
 
 const authFile = "e2e/.auth/user.json";
 
@@ -14,7 +15,12 @@ export default defineConfig({
 
   // Use different reporters for CI vs local
   reporter: isCI
-    ? [["list"], ["html", { open: "never" }]] // CI: list output + HTML report (no server)
+    ? [
+        ["list"],
+        ["html", { open: "never" }],
+        ["github"],
+        ["junit", { outputFile: "test-results/results.xml" }],
+      ] // CI: list output + HTML report + GitHub + JUnit
     : [["list"], ["html", { open: "on-failure" }]], // Local: list output + HTML on failure only
 
   use: {
@@ -48,6 +54,8 @@ export default defineConfig({
       ...process.env,
       PORT: "3001",
       NODE_ENV: "test",
+      ENABLE_TEST_AUTH: "true",
+      AUTH_SECRET: process.env.AUTH_SECRET || randomBytes(32).toString("hex"),
     },
   },
 });

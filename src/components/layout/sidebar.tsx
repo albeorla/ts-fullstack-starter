@@ -13,8 +13,6 @@ import {
   Menu,
   User,
   UserCircle,
-  Lock,
-  Bell,
 } from "lucide-react";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { cn } from "~/lib/utils";
@@ -87,7 +85,9 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
   ];
 
   const filteredAdminNavigation = adminNavigation.filter((item) => item.show);
-  const filteredSettingsNavigation = settingsNavigation.filter((item) => item.show);
+  const filteredSettingsNavigation = settingsNavigation.filter(
+    (item) => item.show,
+  );
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/auth" });
@@ -107,8 +107,8 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          "fixed left-0 top-0 z-40 h-full bg-background border-r transition-all duration-300",
-          open ? "w-64" : "w-16"
+          "bg-background fixed top-0 left-0 z-40 h-full border-r transition-all duration-300",
+          open ? "w-64" : "w-16",
         )}
       >
         <div className="flex h-full flex-col">
@@ -159,7 +159,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn(
                           "w-full justify-start",
-                          !open && "justify-center px-2"
+                          !open && "justify-center px-2",
                         )}
                         onClick={() => router.push(item.href)}
                       >
@@ -181,7 +181,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             {filteredAdminNavigation.length > 0 && (
               <div className="space-y-1">
                 {open && (
-                  <h3 className="px-3 text-xs font-medium text-muted-foreground uppercase">
+                  <h3 className="text-muted-foreground px-3 text-xs font-medium uppercase">
                     Administration
                   </h3>
                 )}
@@ -196,7 +196,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                           variant={isActive ? "secondary" : "ghost"}
                           className={cn(
                             "w-full justify-start",
-                            !open && "justify-center px-2"
+                            !open && "justify-center px-2",
                           )}
                           onClick={() => router.push(item.href)}
                         >
@@ -218,7 +218,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             {/* Settings Section */}
             <div className="space-y-1">
               {open && (
-                <h3 className="px-3 text-xs font-medium text-muted-foreground uppercase">
+                <h3 className="text-muted-foreground px-3 text-xs font-medium uppercase">
                   Settings
                 </h3>
               )}
@@ -233,7 +233,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn(
                           "w-full justify-start",
-                          !open && "justify-center px-2"
+                          !open && "justify-center px-2",
                         )}
                         onClick={() => router.push(item.href)}
                       >
@@ -261,7 +261,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                     variant="ghost"
                     className={cn(
                       "w-full",
-                      open ? "justify-start" : "justify-center px-2"
+                      open ? "justify-start" : "justify-center px-2",
                     )}
                   >
                     <Avatar className={cn("h-8 w-8", open && "mr-3")}>
@@ -270,7 +270,10 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                         alt={session.user.name ?? ""}
                       />
                       <AvatarFallback>
-                        {getUserInitials(session.user.name, session.user.email ?? "")}
+                        {getUserInitials(
+                          session.user.name,
+                          session.user.email ?? "",
+                        )}
                       </AvatarFallback>
                     </Avatar>
                     {open && (
@@ -278,7 +281,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                         <span className="text-sm font-medium">
                           {session.user.name ?? "User"}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           {session.user.email}
                         </span>
                       </div>
@@ -298,9 +301,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push("/settings")}
-                  >
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>

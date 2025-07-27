@@ -26,8 +26,14 @@ const permissionSchema = z.object({
 
 type PermissionFormData = z.infer<typeof permissionSchema>;
 
+interface Permission {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
 interface PermissionFormProps {
-  permission?: any;
+  permission?: Permission | null;
   onSuccess: () => void;
 }
 
@@ -35,8 +41,8 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
   const form = useForm<PermissionFormData>({
     resolver: zodResolver(permissionSchema),
     defaultValues: {
-      name: permission?.name || "",
-      description: permission?.description || "",
+      name: permission?.name ?? "",
+      description: permission?.description ?? "",
     },
   });
 
@@ -65,7 +71,7 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
     if (permission) {
       form.reset({
         name: permission.name,
-        description: permission.description || "",
+        description: permission.description ?? "",
       });
     }
   }, [permission, form]);
@@ -108,7 +114,7 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
               </FormControl>
               <FormDescription>
                 A unique name for this permission using the format
-                "resource:action"
+                &quot;resource:action&quot;
               </FormDescription>
               <FormMessage />
             </FormItem>

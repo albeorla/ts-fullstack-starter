@@ -71,25 +71,49 @@ export const authConfig = {
                       },
                     });
 
-                    // Ensure the user has the necessary roles
-                    const defaultRole = await db.role.findFirst({
-                      where: { name: "USER" },
+                    // Ensure the user has the necessary roles based on email
+                    const adminEmails = [
+                      "admin@example.com",
+                      "superuser@example.com",
+                    ];
+                    const isAdmin = adminEmails.includes(email);
+                    const roleName = isAdmin ? "ADMIN" : "USER";
+
+                    const role = await db.role.findFirst({
+                      where: { name: roleName },
                     });
 
-                    if (defaultRole) {
-                      await db.userRole.upsert({
-                        where: {
-                          userId_roleId: {
-                            userId: user.id,
-                            roleId: defaultRole.id,
-                          },
-                        },
-                        update: {},
-                        create: {
+                    if (role) {
+                      // Clear existing roles first for test accounts
+                      if (isTestMode && email.includes("@test.com")) {
+                        await db.userRole.deleteMany({
+                          where: { userId: user.id },
+                        });
+                      }
+
+                      // Assign the appropriate role
+                      await db.userRole.create({
+                        data: {
                           userId: user.id,
-                          roleId: defaultRole.id,
+                          roleId: role.id,
                         },
                       });
+                    }
+
+                    // If admin, also assign USER role (admins typically have both)
+                    if (isAdmin) {
+                      const userRole = await db.role.findFirst({
+                        where: { name: "USER" },
+                      });
+
+                      if (userRole) {
+                        await db.userRole.create({
+                          data: {
+                            userId: user.id,
+                            roleId: userRole.id,
+                          },
+                        });
+                      }
                     }
 
                     // Return user object in the format NextAuth expects
