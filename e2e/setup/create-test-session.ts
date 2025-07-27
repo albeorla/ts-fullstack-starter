@@ -58,6 +58,7 @@ export async function createTestSession(role: "USER" | "ADMIN" = "USER") {
         exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
       },
       secret: process.env.AUTH_SECRET ?? "test-secret",
+      salt: process.env.AUTH_SALT ?? "authjs.session-token",
     });
 
     // Create or update session
