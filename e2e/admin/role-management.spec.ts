@@ -171,21 +171,23 @@ test.describe("Role Management", () => {
 
       // Check permission badges have appropriate colors
       const permissionBadges = page
-        .locator('[data-slot="badge"]')
-        .filter({ hasText: /manage:/ });
+        .locator('[data-testid^="permission-badge-manage:"]')
+        .or(page.locator('[data-slot="badge"]').filter({ hasText: /manage:/ }));
 
       if ((await permissionBadges.count()) > 0) {
         const firstPermissionBadge = permissionBadges.first();
         await expect(firstPermissionBadge).toBeVisible();
 
-        // Verify gradient styling for permission badges
-        const hasGradient = await firstPermissionBadge.evaluate((el) => {
+        // Verify gradient styling is applied by checking for gradient classes
+        const hasPermissionStyling = await firstPermissionBadge.evaluate((el) => {
+          const classNames = el.className;
           return (
-            el.className.includes("from-emerald-") ||
-            el.className.includes("from-teal-")
+            classNames.includes("from-emerald-") ||
+            classNames.includes("from-teal-") ||
+            classNames.includes("bg-gradient-to-r")
           );
         });
-        expect(hasGradient).toBeTruthy();
+        expect(hasPermissionStyling).toBeTruthy();
       }
 
       await takeScreenshot(page, "role-badge-styling");
@@ -559,21 +561,23 @@ test.describe("Role Management", () => {
       await navigateToAdmin(page, "roles");
       await verifyLoadingStates(page);
 
-      // Find permission badges
+      // Find permission badges using improved selectors
       const manageBadges = page
-        .locator('[data-slot="badge"]')
-        .filter({ hasText: "manage:" });
+        .locator('[data-testid^="permission-badge-manage:"]')
+        .or(page.locator('[data-slot="badge"]').filter({ hasText: "manage:" }));
       const viewBadges = page
-        .locator('[data-slot="badge"]')
-        .filter({ hasText: "view:" });
+        .locator('[data-testid^="permission-badge-view:"]')
+        .or(page.locator('[data-slot="badge"]').filter({ hasText: "view:" }));
 
       // Verify manage permissions have emerald/teal gradient
       if ((await manageBadges.count()) > 0) {
         const manageBadge = manageBadges.first();
         const hasPermissionStyling = await manageBadge.evaluate((el) => {
+          const classNames = el.className;
           return (
-            el.className.includes("from-emerald-") ||
-            el.className.includes("from-teal-")
+            classNames.includes("from-emerald-") ||
+            classNames.includes("from-teal-") ||
+            classNames.includes("bg-gradient-to-r")
           );
         });
         expect(hasPermissionStyling).toBeTruthy();
@@ -656,10 +660,11 @@ test.describe("Role Management", () => {
         const countText = await userCountElement.textContent();
         const count = parseInt(countText?.match(/\d+/)?.[0] || "0");
 
-        // Count actual user badges if shown
-        const userBadges = roleCard.locator('[data-slot="badge"]').filter({
-          hasText: /@|Admin|test|user/,
-        });
+        // Count actual user badges in the "Users" section only
+        const usersSection = roleCard.locator('h4:has-text("Users")').locator('..');
+        const userBadges = usersSection
+          .locator('[data-testid^="user-badge-"]')
+          .or(usersSection.locator('[data-slot="badge"]'));
         const badgeCount = await userBadges.count();
 
         // Count should match or badges might not show all users

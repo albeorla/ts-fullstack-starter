@@ -215,35 +215,37 @@ test.describe("UI Styling and Interactions", () => {
       await page.goto("/admin/permissions");
       await verifyLoadingStates(page);
 
-      // Test manage: permission badges
+      // Test manage: permission badges using improved selectors
       const manageBadges = page
-        .locator('[data-slot="badge"]')
-        .filter({ hasText: "manage:" });
+        .locator('[data-testid^="permission-name-badge-manage:"], [data-testid^="permission-badge-manage:"]')
+        .or(page.locator('[data-slot="badge"]').filter({ hasText: "manage:" }));
       if ((await manageBadges.count()) > 0) {
         const manageBadge = manageBadges.first();
 
         const hasPermissionStyling = await manageBadge.evaluate((el) => {
+          const classNames = el.className;
           return (
-            (el.className.includes("from-emerald-") ||
-              el.className.includes("from-teal-")) &&
-            el.className.includes("bg-gradient-to-r")
+            (classNames.includes("from-emerald-") ||
+              classNames.includes("from-teal-")) &&
+            classNames.includes("bg-gradient-to-r")
           );
         });
         expect(hasPermissionStyling).toBeTruthy();
       }
 
-      // Test view: permission badges
+      // Test view: permission badges using improved selectors
       const viewBadges = page
-        .locator('[data-slot="badge"]')
-        .filter({ hasText: "view:" });
+        .locator('[data-testid^="permission-name-badge-view:"], [data-testid^="permission-badge-view:"]')
+        .or(page.locator('[data-slot="badge"]').filter({ hasText: "view:" }));
       if ((await viewBadges.count()) > 0) {
         const viewBadge = viewBadges.first();
 
         const hasViewStyling = await viewBadge.evaluate((el) => {
+          const classNames = el.className;
           return (
-            (el.className.includes("from-cyan-") ||
-              el.className.includes("from-blue-")) &&
-            el.className.includes("bg-gradient-to-r")
+            (classNames.includes("from-cyan-") ||
+              classNames.includes("from-blue-")) &&
+            classNames.includes("bg-gradient-to-r")
           );
         });
         expect(hasViewStyling).toBeTruthy();

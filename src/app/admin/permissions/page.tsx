@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Badge } from "~/components/ui/badge";
+import { Badge, getRoleBadgeVariant, getPermissionBadgeVariant } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 import { PermissionForm } from "./_components/permission-form";
 import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
@@ -157,7 +157,12 @@ export default function PermissionsPage() {
                       <Key className="text-muted-foreground h-5 w-5" />
                       <div>
                         <CardTitle className="flex items-center gap-2">
-                          {permission.name}
+                          <Badge 
+                            variant={getPermissionBadgeVariant(permission.name)}
+                            data-testid={`permission-name-badge-${permission.name}`}
+                          >
+                            {permission.name}
+                          </Badge>
                         </CardTitle>
                         <CardDescription>
                           {permission.description ?? "No description provided"}
@@ -223,7 +228,11 @@ export default function PermissionsPage() {
                       {permission.roles.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {permission.roles.map((rp) => (
-                            <Badge key={rp.role.id} variant="secondary">
+                            <Badge 
+                              key={rp.role.id} 
+                              variant={getRoleBadgeVariant(rp.role.name)}
+                              data-testid={`role-badge-${rp.role.name}`}
+                            >
                               {rp.role.name}
                             </Badge>
                           ))}
