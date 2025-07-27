@@ -72,7 +72,8 @@ export const authConfig = {
                     });
 
                     // Ensure the user has the necessary roles based on email
-                    const isAdmin = email.includes("admin@");
+                    const adminEmails = ["admin@example.com", "superuser@example.com"];
+                    const isAdmin = adminEmails.includes(email);
                     const roleName = isAdmin ? "ADMIN" : "USER";
 
                     const role = await db.role.findFirst({
