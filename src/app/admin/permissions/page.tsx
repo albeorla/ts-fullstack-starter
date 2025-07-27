@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Badge } from "~/components/ui/badge";
+import { Badge, getRoleBadgeVariant, getPermissionBadgeVariant } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 import { PermissionForm } from "./_components/permission-form";
 import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";

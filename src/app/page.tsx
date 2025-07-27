@@ -13,7 +13,7 @@ import {
 import { api } from "~/trpc/react";
 import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
 import { Calendar, Activity, TrendingUp, Users, Settings, UserCircle, Bell, Lock, ArrowRight } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
+import { Badge, getRoleBadgeVariant } from "~/components/ui/badge";
 import { SkeletonStatCard } from "~/components/ui/skeleton-card";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
@@ -77,15 +77,18 @@ export default function Dashboard() {
             ) : (
               <>
                 {/* Account Status Card */}
-                <Card>
+                <Card variant="stats">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Account Status
                 </CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Activity className="h-4 w-4 text-emerald-500" />
+                  <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-sm" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Active</div>
+                <div className="text-2xl font-bold text-emerald-600">Active</div>
                 <p className="text-xs text-muted-foreground">
                   Member since recently
                 </p>
@@ -93,15 +96,18 @@ export default function Dashboard() {
             </Card>
 
             {/* Total Sessions Card */}
-            <Card>
+            <Card variant="stats">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Sessions
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <TrendingUp className="h-4 w-4 text-blue-500" />
+                  <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-sm" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-blue-600">
                   {userStats?.totalSessions ?? 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -111,15 +117,18 @@ export default function Dashboard() {
             </Card>
 
             {/* Last Login Card */}
-            <Card>
+            <Card variant="stats">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Last Login
                 </CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Calendar className="h-4 w-4 text-purple-500" />
+                  <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-sm" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-purple-600">
                   {userStats?.lastLogin
                     ? new Intl.DateTimeFormat("en-US", {
                         month: "short",
@@ -139,20 +148,23 @@ export default function Dashboard() {
             </Card>
 
             {/* Roles Card */}
-            <Card>
+            <Card variant="stats">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Your Roles
                 </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Users className="h-4 w-4 text-orange-500" />
+                  <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-sm" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-orange-600">
                   {session?.user?.roles?.length ?? 0}
                 </div>
-                <div className="flex gap-1 mt-1">
+                <div className="flex gap-1 mt-1 flex-wrap">
                   {session?.user?.roles?.map((role) => (
-                    <Badge key={role} variant="secondary" className="text-xs">
+                    <Badge key={role} variant={getRoleBadgeVariant(role)} className="text-xs">
                       {role}
                     </Badge>
                   )) ?? <p className="text-xs text-muted-foreground">No roles assigned</p>}
@@ -166,9 +178,9 @@ export default function Dashboard() {
           {/* Main Content Grid */}
           <div className="grid gap-6 md:grid-cols-2">
             {/* Profile Overview */}
-            <Card className="md:col-span-2">
+            <Card variant="elevated" className="md:col-span-2">
               <CardHeader>
-                <CardTitle>Profile Overview</CardTitle>
+                <CardTitle className="gradient-text-primary">Profile Overview</CardTitle>
                 <CardDescription>
                   Your account information and settings
                 </CardDescription>
@@ -193,9 +205,9 @@ export default function Dashboard() {
                       <p className="text-sm text-muted-foreground">
                         {session?.user?.email}
                       </p>
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         {session?.user?.roles?.map((role) => (
-                          <Badge key={role} variant="secondary" className="text-xs">
+                          <Badge key={role} variant={getRoleBadgeVariant(role)} className="text-xs">
                             {role}
                           </Badge>
                         )) ?? (

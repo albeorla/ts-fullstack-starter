@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Badge } from "~/components/ui/badge";
+import { Badge, getRoleBadgeVariant, getPermissionBadgeVariant } from "~/components/ui/badge";
 import { api } from "~/trpc/react";
 import { RoleForm } from "./_components/role-form";
 import { AuthenticatedLayout } from "~/components/layout/authenticated-layout";
@@ -132,16 +132,21 @@ export default function RolesPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="grid gap-6">
           {roles?.map((role) => (
-            <Card key={role.id}>
+            <Card key={role.id} variant="elevated">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Shield className="text-muted-foreground h-5 w-5" />
+                    <div className="relative">
+                      <Shield className="h-5 w-5 text-primary" />
+                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-sm" />
+                    </div>
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        {role.name}
+                        <span className={`gradient-text-${role.name.toLowerCase() === 'admin' ? 'admin' : role.name.toLowerCase() === 'user' ? 'user' : 'primary'}`}>
+                          {role.name}
+                        </span>
                         {role.name === "ADMIN" && (
-                          <Badge variant="default">System</Badge>
+                          <Badge variant="admin">System</Badge>
                         )}
                       </CardTitle>
                       <CardDescription>
@@ -207,7 +212,7 @@ export default function RolesPage() {
                     {role.permissions.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {role.permissions.map((rp) => (
-                          <Badge key={rp.permission.id} variant="secondary">
+                          <Badge key={rp.permission.id} variant={getPermissionBadgeVariant(rp.permission.name)}>
                             {rp.permission.name}
                           </Badge>
                         ))}

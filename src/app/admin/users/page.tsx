@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Badge } from "~/components/ui/badge";
+import { Badge, getRoleBadgeVariant } from "~/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { api } from "~/trpc/react";
 import { UserRoleForm } from "./_components/user-role-form";
@@ -107,31 +107,40 @@ export default function UsersPage() {
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card>
+        <Card variant="stats">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="text-muted-foreground h-4 w-4" />
+            <div className="relative">
+              <Users className="h-4 w-4 text-blue-500" />
+              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-sm" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users?.length || 0}</div>
+            <div className="text-2xl font-bold text-blue-600">{users?.length || 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="stats">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Roles</CardTitle>
-            <Shield className="text-muted-foreground h-4 w-4" />
+            <div className="relative">
+              <Shield className="h-4 w-4 text-emerald-500" />
+              <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-sm" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{roles?.length || 0}</div>
+            <div className="text-2xl font-bold text-emerald-600">{roles?.length || 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="stats">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Admin Users</CardTitle>
-            <Shield className="text-muted-foreground h-4 w-4" />
+            <div className="relative">
+              <Shield className="h-4 w-4 text-red-500" />
+              <div className="absolute inset-0 bg-red-500/20 rounded-full blur-sm" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-red-600">
               {users?.filter((user) =>
                 user.roles.some((ur: any) => ur.role.name === "ADMIN"),
               ).length || 0}
@@ -150,27 +159,27 @@ export default function UsersPage() {
           </>
         ) : users && users.length > 0 ? (
           users.map((user) => (
-          <Card key={user.id}>
+          <Card key={user.id} variant="interactive">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
+                  <Avatar className="h-12 w-12 ring-2 ring-primary/20">
                     <AvatarImage src={user.image || ""} alt={user.name || ""} />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
                       {getUserInitials(user.name || user.email || "U")}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold">
+                    <h3 className="font-semibold text-lg">
                       {user.name || "Unnamed User"}
                     </h3>
                     <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                      <Mail className="h-3 w-3" />
+                      <Mail className="h-3 w-3 text-blue-500" />
                       {user.email}
                     </div>
                     {user.emailVerified && (
                       <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                        <Calendar className="h-3 w-3" />
+                        <Calendar className="h-3 w-3 text-green-500" />
                         Joined {formatDate(user.emailVerified.toString())}
                       </div>
                     )}
@@ -179,9 +188,9 @@ export default function UsersPage() {
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="mb-2 flex flex-wrap gap-1">
+                    <div className="mb-2 flex flex-wrap gap-1 justify-end">
                       {user.roles.map((userRole: any) => (
-                        <Badge key={userRole.role.id} variant="secondary">
+                        <Badge key={userRole.role.id} variant={getRoleBadgeVariant(userRole.role.name)}>
                           {userRole.role.name}
                         </Badge>
                       ))}
