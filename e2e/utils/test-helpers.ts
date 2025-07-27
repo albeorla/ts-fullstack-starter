@@ -44,9 +44,10 @@ export async function setupAdminSession(context: BrowserContext) {
   const adminSession = await createTestSession("ADMIN");
 
   // Set the admin session cookies
-  const cookieName = process.env.NODE_ENV === "production" 
-    ? "__Secure-authjs.session-token" 
-    : "authjs.session-token";
+  const cookieName =
+    process.env.NODE_ENV === "production"
+      ? "__Secure-authjs.session-token"
+      : "authjs.session-token";
 
   await context.addCookies([
     {
@@ -76,9 +77,10 @@ export async function setupUserSession(context: BrowserContext) {
   const userSession = await createTestSession("USER");
 
   // Set the user session cookies
-  const cookieName = process.env.NODE_ENV === "production" 
-    ? "__Secure-authjs.session-token" 
-    : "authjs.session-token";
+  const cookieName =
+    process.env.NODE_ENV === "production"
+      ? "__Secure-authjs.session-token"
+      : "authjs.session-token";
 
   await context.addCookies([
     {

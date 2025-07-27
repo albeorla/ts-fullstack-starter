@@ -94,24 +94,29 @@ test.describe("Dashboard Functionality", () => {
       context,
     }) => {
       await setupAdminSession(context);
-      
+
       // Wait for page to fully load and any loading states to resolve
       await page.waitForLoadState("networkidle");
-      
+
       // Wait for any loading indicators to disappear
-      const loadingIndicators = page.locator('[data-loading="true"], .loading, .skeleton');
-      await loadingIndicators.first().waitFor({ state: 'detached', timeout: 10000 }).catch(() => {
-        // Ignore if no loading indicators found
-      });
-      
+      const loadingIndicators = page.locator(
+        '[data-loading="true"], .loading, .skeleton',
+      );
+      await loadingIndicators
+        .first()
+        .waitFor({ state: "detached", timeout: 10000 })
+        .catch(() => {
+          // Ignore if no loading indicators found
+        });
+
       // Additional wait to ensure React hydration is complete
       await page.waitForTimeout(2000);
 
       // Debug: Log what's visible on the page
       console.log("Current URL:", page.url());
-      
+
       // Check if we're on the dashboard
-      if (!page.url().includes('/')) {
+      if (!page.url().includes("/")) {
         await verifyDashboard(page);
       }
 
@@ -123,30 +128,37 @@ test.describe("Dashboard Functionality", () => {
       // Try multiple elements that should be visible on dashboard
       let foundElement = false;
       const elementsToCheck = [greeting, accountStatus, profileOverview];
-      
+
       for (const element of elementsToCheck) {
         try {
-          await element.waitFor({ state: 'visible', timeout: 5000 });
+          await element.waitFor({ state: "visible", timeout: 5000 });
           foundElement = true;
           break;
         } catch {
           // Continue to next element
         }
       }
-      
+
       if (!foundElement) {
         // Debug: Take screenshot and log page content
         await takeScreenshot(page, "dashboard-debug-not-loaded");
-        const bodyText = await page.locator('body').textContent();
-        console.error("Dashboard elements not found. Page content:", bodyText?.substring(0, 500));
-        
+        const bodyText = await page.locator("body").textContent();
+        console.error(
+          "Dashboard elements not found. Page content:",
+          bodyText?.substring(0, 500),
+        );
+
         // Check for any error messages
-        const errorMessages = await page.locator('[role="alert"], .error, .alert-error').allTextContents();
+        const errorMessages = await page
+          .locator('[role="alert"], .error, .alert-error')
+          .allTextContents();
         if (errorMessages.length > 0) {
           console.error("Error messages found:", errorMessages);
         }
-        
-        throw new Error("Dashboard failed to load properly - no expected elements found");
+
+        throw new Error(
+          "Dashboard failed to load properly - no expected elements found",
+        );
       }
 
       // Should show user's actual name, email, or admin status
@@ -155,7 +167,7 @@ test.describe("Dashboard Functionality", () => {
         .or(page.getByText("admin@example.com"))
         .or(page.getByText("Administrator"))
         .or(page.getByText("ADMIN"));
-        
+
       await expect(userInfo).toBeVisible({ timeout: 10000 });
 
       // Verify user profile section shows correct info

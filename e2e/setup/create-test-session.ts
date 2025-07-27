@@ -1,5 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { encode } from "next-auth/jwt";
+import crypto from "crypto";
+
+// Make crypto available globally for next-auth/jwt
+if (typeof global !== "undefined" && !global.crypto) {
+  global.crypto = crypto as any;
+}
 
 const prisma = new PrismaClient();
 
@@ -63,7 +69,7 @@ export async function createTestSession(role: "USER" | "ADMIN" = "USER") {
 
     // Create or update session
     const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    
+
     await prisma.session.upsert({
       where: { sessionToken: token },
       update: {

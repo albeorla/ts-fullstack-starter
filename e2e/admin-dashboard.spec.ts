@@ -15,9 +15,10 @@ test.describe("Admin Dashboard", () => {
     const adminSession = await createTestSession("ADMIN");
 
     // Set the admin session cookies
-    const cookieName = process.env.NODE_ENV === "production" 
-      ? "__Secure-authjs.session-token" 
-      : "authjs.session-token";
+    const cookieName =
+      process.env.NODE_ENV === "production"
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token";
 
     await context.addCookies([
       {

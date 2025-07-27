@@ -24,12 +24,13 @@ setup("authenticate", async ({ page, context }) => {
 
     // Set the auth session cookie using the correct name
     // For Next.js App Router with database sessions, the cookie name is:
-    const cookieName = process.env.NODE_ENV === "production" 
-      ? "__Secure-authjs.session-token" 
-      : "authjs.session-token";
+    const cookieName =
+      process.env.NODE_ENV === "production"
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token";
 
     console.log(`Setting ${cookieName} cookie...`);
-    
+
     // Set the session cookie
     await context.addCookies([
       {
@@ -47,7 +48,7 @@ setup("authenticate", async ({ page, context }) => {
     // Navigate to home page to verify authentication
     console.log("Navigating to verify authentication...");
     await page.goto("/");
-    
+
     // Wait longer for the page to load and session to be recognized
     await page.waitForTimeout(2000);
 
@@ -71,22 +72,30 @@ setup("authenticate", async ({ page, context }) => {
 
       if (!authenticated) {
         // Take a screenshot for debugging
-        await page.screenshot({ 
+        await page.screenshot({
           path: "e2e/.auth/auth-failure.png",
-          fullPage: true 
+          fullPage: true,
         });
-        
-        console.error("Authentication verification failed - no authenticated elements found");
+
+        console.error(
+          "Authentication verification failed - no authenticated elements found",
+        );
         console.log("Page URL:", page.url());
         console.log("Page title:", await page.title());
-        
+
         // Log any visible error messages
-        const errorMessage = await page.locator('[role="alert"], .error, .alert').first().textContent().catch(() => null);
+        const errorMessage = await page
+          .locator('[role="alert"], .error, .alert')
+          .first()
+          .textContent()
+          .catch(() => null);
         if (errorMessage) {
           console.error("Error message on page:", errorMessage);
         }
-        
-        throw new Error("Authentication setup failed - could not verify authenticated state");
+
+        throw new Error(
+          "Authentication setup failed - could not verify authenticated state",
+        );
       }
 
       console.log("✅ Authentication successful!");
@@ -100,17 +109,17 @@ setup("authenticate", async ({ page, context }) => {
     }
   } catch (error) {
     console.error("Authentication setup failed:", error);
-    
+
     // Take a screenshot on failure
     try {
-      await page.screenshot({ 
+      await page.screenshot({
         path: "e2e/.auth/setup-error.png",
-        fullPage: true 
+        fullPage: true,
       });
     } catch (screenshotError) {
       console.error("Failed to take error screenshot:", screenshotError);
     }
-    
+
     throw error;
   }
 });

@@ -23,12 +23,13 @@ setup("authenticate as admin", async ({ page, context }) => {
     const sessionData = await createTestSession("ADMIN");
 
     // Set the auth session cookie using the correct name
-    const cookieName = process.env.NODE_ENV === "production" 
-      ? "__Secure-authjs.session-token" 
-      : "authjs.session-token";
+    const cookieName =
+      process.env.NODE_ENV === "production"
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token";
 
     console.log(`Setting ${cookieName} cookie for admin...`);
-    
+
     // Set the session cookie
     await context.addCookies([
       {
@@ -46,7 +47,7 @@ setup("authenticate as admin", async ({ page, context }) => {
     // Navigate to admin page to verify authentication
     console.log("Navigating to verify admin authentication...");
     await page.goto("/admin");
-    
+
     // Wait for the page to load
     await page.waitForTimeout(2000);
 
@@ -78,16 +79,18 @@ setup("authenticate as admin", async ({ page, context }) => {
         }
 
         // Take a screenshot for debugging
-        await page.screenshot({ 
+        await page.screenshot({
           path: "e2e/.auth/admin-auth-failure.png",
-          fullPage: true 
+          fullPage: true,
         });
-        
+
         console.error("Admin authentication verification failed");
         console.log("Page URL:", currentUrl);
         console.log("Page title:", await page.title());
-        
-        throw new Error("Admin authentication setup failed - could not access admin area");
+
+        throw new Error(
+          "Admin authentication setup failed - could not access admin area",
+        );
       }
 
       console.log("✅ Admin authentication successful!");
@@ -102,17 +105,17 @@ setup("authenticate as admin", async ({ page, context }) => {
     }
   } catch (error) {
     console.error("Admin authentication setup failed:", error);
-    
+
     // Take a screenshot on failure
     try {
-      await page.screenshot({ 
+      await page.screenshot({
         path: "e2e/.auth/admin-setup-error.png",
-        fullPage: true 
+        fullPage: true,
       });
     } catch (screenshotError) {
       console.error("Failed to take error screenshot:", screenshotError);
     }
-    
+
     throw error;
   }
-}); 
+});
