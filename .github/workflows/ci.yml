@@ -204,8 +204,6 @@ jobs:
             node_modules
             .next/cache
           key: deps-${{ runner.os }}-${{ hashFiles('yarn.lock', 'package.json') }}
-          restore-keys: |
-            deps-${{ runner.os }}-
 
       # Download build artifacts
       - name: 📥 Download build artifacts
@@ -426,6 +424,15 @@ jobs:
           fi
         env:
           CI: true
+          NODE_ENV: test
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          AUTH_SECRET: test-secret-for-ci
+          NEXTAUTH_URL: http://localhost:3001
+          AUTH_DISCORD_ID: ${{ env.AUTH_DISCORD_ID }}
+          AUTH_DISCORD_SECRET: ${{ env.AUTH_DISCORD_SECRET }}
+          ENABLE_TEST_AUTH: true
+          # Add debug logging for auth issues
+          DEBUG: pw:api,next-auth
 
       - name: 📊 Upload coverage to Codecov
         if: always()

@@ -1,26 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import { randomBytes } from "crypto";
+import { encode } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
 
-interface CreateTestSessionOptions {
-  email?: string;
-  name?: string;
-  role?: "USER" | "ADMIN";
-}
-
-async function createTestSession(options: CreateTestSessionOptions = {}) {
-  const {
-    email = "test@example.com",
-    name = "Test User",
-    role = "USER",
-  } = options;
+export async function createTestSession(role: "USER" | "ADMIN" = "USER") {
+  const email = role === "ADMIN" ? "admin@example.com" : "user@example.com";
+  const name = role === "ADMIN" ? "Admin User" : "Test User";
 
   console.log(`Creating test session for ${role} user...`);
 
   try {
-    // Create or update test user
-    const testUser = await prisma.user.upsert({
+    // Ensure user exists with proper data
+    const user = await prisma.user.upsert({
       where: { email },
       update: {
         name,
@@ -35,73 +26,72 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
       },
     });
 
-    // Get the requested role
-    const requestedRole = await prisma.role.findFirst({
+    // Ensure role exists
+    const roleRecord = await prisma.role.findFirst({
       where: { name: role },
     });
 
-    if (requestedRole) {
-      // First, remove any existing roles that are not the requested role
-      await prisma.userRole.deleteMany({
-        where: {
-          userId: testUser.id,
-          roleId: { not: requestedRole.id },
-        },
-      });
-
-      // Then ensure the requested role is assigned (handle race conditions)
-      try {
-        await prisma.userRole.create({
-          data: {
-            userId: testUser.id,
-            roleId: requestedRole.id,
-          },
-        });
-      } catch (error: any) {
-        // If it's a unique constraint error, the role is already assigned - that's fine
-        if (error?.code !== "P2002") {
-          console.error("Error creating test session:", error);
-          throw error;
-        }
-      }
-    } else {
-      console.warn(`Warning: ${role} role not found in database`);
+    if (!roleRecord) {
+      throw new Error(`Role ${role} not found in database`);
     }
 
-    // Create a session token
-    const sessionToken = randomBytes(32).toString("hex");
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 30); // 30 days from now
+    // Clear existing roles and assign new one
+    await prisma.userRole.deleteMany({
+      where: { userId: user.id },
+    });
 
-    // Create session
-    const session = await prisma.session.upsert({
-      where: { sessionToken },
+    await prisma.userRole.create({
+      data: {
+        userId: user.id,
+        roleId: roleRecord.id,
+      },
+    });
+
+    // Create JWT token with proper structure
+    const token = await encode({
+      token: {
+        sub: user.id,
+        email: user.email,
+        name: user.name,
+        picture: user.image,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
+      },
+      secret: process.env.AUTH_SECRET ?? "test-secret",
+    });
+
+    // Create or update session
+    const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    
+    await prisma.session.upsert({
+      where: { sessionToken: token },
       update: {
-        userId: testUser.id,
-        expires,
+        expires: sessionExpiry,
+        userId: user.id,
       },
       create: {
-        sessionToken,
-        userId: testUser.id,
-        expires,
+        sessionToken: token,
+        userId: user.id,
+        expires: sessionExpiry,
       },
     });
 
     console.log(`✅ Test session created for ${email} (${role})`);
 
-    // Return the session details
     return {
-      sessionToken,
-      userId: testUser.id,
-      userEmail: testUser.email,
-      userRole: role,
+      sessionToken: token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        roles: [role],
+      },
     };
   } catch (error) {
-    console.error("Error creating test session:", error);
+    console.error("Failed to create test session:", error);
     throw error;
   } finally {
     await prisma.$disconnect();
   }
 }
-
-export { createTestSession };

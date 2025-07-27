@@ -22,95 +22,95 @@ setup("authenticate", async ({ page, context }) => {
     console.log("Creating test session in database...");
     const sessionData = await createTestSession();
 
+    // Set the auth session cookie using the correct name
+    // For Next.js App Router with database sessions, the cookie name is:
+    const cookieName = process.env.NODE_ENV === "production" 
+      ? "__Secure-authjs.session-token" 
+      : "authjs.session-token";
+
+    console.log(`Setting ${cookieName} cookie...`);
+    
     // Set the session cookie
     await context.addCookies([
       {
-        name: "next-auth.session-token",
+        name: cookieName,
         value: sessionData.sessionToken,
         domain: "localhost",
         path: "/",
+        expires: Math.floor(Date.now() / 1000) + 86400, // 24 hours
         httpOnly: true,
+        secure: false, // Set to false for localhost
         sameSite: "Lax",
-        expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-      },
-      // Also set authjs cookie name (v5)
-      {
-        name: "authjs.session-token",
-        value: sessionData.sessionToken,
-        domain: "localhost",
-        path: "/",
-        httpOnly: true,
-        sameSite: "Lax",
-        expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
       },
     ]);
 
-    // Navigate to home page to verify
+    // Navigate to home page to verify authentication
+    console.log("Navigating to verify authentication...");
     await page.goto("/");
-
-    // Wait for the page to fully load including all API calls
-    await page.waitForLoadState("networkidle", { timeout: 30000 });
-
-    // Verify we're logged in by checking for the dashboard greeting or key dashboard elements
-    const greetingText = await page.locator(
-      "text=/Good (morning|afternoon|evening)/i",
-    );
-    const dashboardHeading = await page.locator("h1");
-    const accountStatusCard = await page.locator("text=Account Status");
-
-    // Wait a bit for any hydration to complete
+    
+    // Wait longer for the page to load and session to be recognized
     await page.waitForTimeout(2000);
 
-    const isGreetingVisible = await greetingText
-      .isVisible({ timeout: 10000 })
-      .catch(() => false);
-    const isAccountStatusVisible = await accountStatusCard
-      .isVisible({ timeout: 10000 })
-      .catch(() => false);
+    // Verify authentication by checking for authenticated elements
+    try {
+      // First try to find any sign that we're authenticated
+      const authenticatedElements = [
+        page.getByRole("button", { name: /sign out/i }),
+        page.getByRole("link", { name: /dashboard/i }),
+        page.getByRole("link", { name: /settings/i }),
+        page.getByText(/welcome/i),
+      ];
 
-    if (!isGreetingVisible && !isAccountStatusVisible) {
-      // Debug information
-      console.log("Page URL:", page.url());
-      console.log("Auth verification failed. Debug info:");
-      console.log("- Session token created:", sessionData.sessionToken);
-      console.log("- User email:", sessionData.userEmail);
-
-      // Check page title and heading
-      const pageTitle = await page.title();
-      const headingText = await dashboardHeading
-        .textContent()
-        .catch(() => null);
-      console.log("- Page title:", pageTitle);
-      console.log("- Page heading:", headingText);
-
-      // Check if there's an error on the page
-      const errorText = await page
-        .locator("text=/error/i")
-        .textContent()
-        .catch(() => null);
-      if (errorText) {
-        console.log("- Error on page:", errorText);
+      let authenticated = false;
+      for (const element of authenticatedElements) {
+        if (await element.isVisible({ timeout: 5000 }).catch(() => false)) {
+          authenticated = true;
+          break;
+        }
       }
 
-      // Take a screenshot for debugging
-      await page.screenshot({
-        path: "e2e/auth-setup-failure.png",
-        fullPage: true,
-      });
+      if (!authenticated) {
+        // Take a screenshot for debugging
+        await page.screenshot({ 
+          path: "e2e/.auth/auth-failure.png",
+          fullPage: true 
+        });
+        
+        console.error("Authentication verification failed - no authenticated elements found");
+        console.log("Page URL:", page.url());
+        console.log("Page title:", await page.title());
+        
+        // Log any visible error messages
+        const errorMessage = await page.locator('[role="alert"], .error, .alert').first().textContent().catch(() => null);
+        if (errorMessage) {
+          console.error("Error message on page:", errorMessage);
+        }
+        
+        throw new Error("Authentication setup failed - could not verify authenticated state");
+      }
 
-      throw new Error(
-        "Failed to verify authentication - Dashboard elements not found",
-      );
+      console.log("✅ Authentication successful!");
+
+      // Save storage state
+      await page.context().storageState({ path: authFile });
+      console.log("✅ Auth state saved to:", authFile);
+    } catch (error) {
+      console.error("Authentication verification error:", error);
+      throw error;
     }
-
-    console.log("✅ Authentication successful!");
-    console.log("✅ User:", sessionData.userEmail);
-
-    // Save authentication state
-    await context.storageState({ path: authFile });
-    console.log("✅ Authentication state saved for reuse in tests");
   } catch (error) {
-    console.error("❌ Authentication setup failed:", error);
+    console.error("Authentication setup failed:", error);
+    
+    // Take a screenshot on failure
+    try {
+      await page.screenshot({ 
+        path: "e2e/.auth/setup-error.png",
+        fullPage: true 
+      });
+    } catch (screenshotError) {
+      console.error("Failed to take error screenshot:", screenshotError);
+    }
+    
     throw error;
   }
 });
