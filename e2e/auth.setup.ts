@@ -47,7 +47,7 @@ setup("authenticate", async ({ page, context }) => {
 
     // Navigate to home page to verify
     await page.goto("/");
-    
+
     // Wait for the page to fully load including all API calls
     await page.waitForLoadState("networkidle", { timeout: 30000 });
 
@@ -93,7 +93,10 @@ setup("authenticate", async ({ page, context }) => {
       }
 
       // Take a screenshot for debugging
-      await page.screenshot({ path: "e2e/auth-setup-failure.png", fullPage: true });
+      await page.screenshot({
+        path: "e2e/auth-setup-failure.png",
+        fullPage: true,
+      });
 
       throw new Error(
         "Failed to verify authentication - Dashboard elements not found",
