@@ -24,7 +24,7 @@ interface Role {
 }
 
 interface UserRoleFormProps {
-  user?: User;
+  user?: User | null;
   roles: Role[];
   onSuccess: (roleIds: string[]) => void;
 }

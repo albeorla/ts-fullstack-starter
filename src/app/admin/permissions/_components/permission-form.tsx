@@ -33,7 +33,7 @@ interface Permission {
 }
 
 interface PermissionFormProps {
-  permission?: Permission;
+  permission?: Permission | null;
   onSuccess: () => void;
 }
 

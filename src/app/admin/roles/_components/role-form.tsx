@@ -32,7 +32,7 @@ interface Role {
 }
 
 interface RoleFormProps {
-  role?: Role;
+  role?: Role | null;
   permissions: Permission[];
   onSuccess: () => void;
 }
