@@ -179,14 +179,16 @@ test.describe("Role Management", () => {
         await expect(firstPermissionBadge).toBeVisible();
 
         // Verify gradient styling is applied by checking for gradient classes
-        const hasPermissionStyling = await firstPermissionBadge.evaluate((el) => {
-          const classNames = el.className;
-          return (
-            classNames.includes("from-emerald-") ||
-            classNames.includes("from-teal-") ||
-            classNames.includes("bg-gradient-to-r")
-          );
-        });
+        const hasPermissionStyling = await firstPermissionBadge.evaluate(
+          (el) => {
+            const classNames = el.className;
+            return (
+              classNames.includes("from-emerald-") ||
+              classNames.includes("from-teal-") ||
+              classNames.includes("bg-gradient-to-r")
+            );
+          },
+        );
         expect(hasPermissionStyling).toBeTruthy();
       }
 
@@ -661,7 +663,9 @@ test.describe("Role Management", () => {
         const count = parseInt(countText?.match(/\d+/)?.[0] || "0");
 
         // Count actual user badges in the "Users" section only
-        const usersSection = roleCard.locator('h4:has-text("Users")').locator('..');
+        const usersSection = roleCard
+          .locator('h4:has-text("Users")')
+          .locator("..");
         const userBadges = usersSection
           .locator('[data-testid^="user-badge-"]')
           .or(usersSection.locator('[data-slot="badge"]'));

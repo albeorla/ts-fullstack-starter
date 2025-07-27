@@ -217,7 +217,9 @@ test.describe("UI Styling and Interactions", () => {
 
       // Test manage: permission badges using improved selectors
       const manageBadges = page
-        .locator('[data-testid^="permission-name-badge-manage:"], [data-testid^="permission-badge-manage:"]')
+        .locator(
+          '[data-testid^="permission-name-badge-manage:"], [data-testid^="permission-badge-manage:"]',
+        )
         .or(page.locator('[data-slot="badge"]').filter({ hasText: "manage:" }));
       if ((await manageBadges.count()) > 0) {
         const manageBadge = manageBadges.first();
@@ -235,7 +237,9 @@ test.describe("UI Styling and Interactions", () => {
 
       // Test view: permission badges using improved selectors
       const viewBadges = page
-        .locator('[data-testid^="permission-name-badge-view:"], [data-testid^="permission-badge-view:"]')
+        .locator(
+          '[data-testid^="permission-name-badge-view:"], [data-testid^="permission-badge-view:"]',
+        )
         .or(page.locator('[data-slot="badge"]').filter({ hasText: "view:" }));
       if ((await viewBadges.count()) > 0) {
         const viewBadge = viewBadges.first();
