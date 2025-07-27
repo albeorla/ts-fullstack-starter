@@ -13,8 +13,6 @@ import {
   Menu,
   User,
   UserCircle,
-  Lock,
-  Bell,
 } from "lucide-react";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { cn } from "~/lib/utils";

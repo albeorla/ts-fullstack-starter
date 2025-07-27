@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authConfig } from "~/server/auth/config";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { z } from "zod";
 
@@ -11,14 +11,14 @@ const updateProfileSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // Get the current session
-    const session = await getServerSession(authConfig);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse and validate the request body
-    const body = await request.json();
+    const body = (await request.json()) as unknown;
     const validatedData = updateProfileSchema.parse(body);
 
     // Update the user in the database
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid data", details: error.issues },
         { status: 400 },
       );
     }

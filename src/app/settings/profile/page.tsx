@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { UserCircle, Upload, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -227,11 +226,7 @@ export default function ProfilePage() {
                       Member Since
                     </span>
                     <span className="text-sm">
-                      {session?.user?.emailVerified
-                        ? new Date(
-                            session.user.emailVerified,
-                          ).toLocaleDateString()
-                        : "Recently"}
+                      Recently
                     </span>
                   </div>
                 </div>

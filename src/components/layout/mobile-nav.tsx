@@ -6,7 +6,6 @@ import {
   Home,
   Users,
   Shield,
-  Key,
   Settings as SettingsIcon,
 } from "lucide-react";
 import { cn } from "~/lib/utils";

@@ -1,4 +1,5 @@
-import { Page, expect, BrowserContext } from "@playwright/test";
+import { expect } from "@playwright/test";
+import type { Page, BrowserContext } from "@playwright/test";
 import { createTestSession } from "../setup/create-test-session";
 
 /**
@@ -82,6 +83,29 @@ export async function setupUserSession(context: BrowserContext) {
   ]);
 
   return userSession;
+}
+
+/**
+ * Logout if currently logged in
+ */
+export async function logoutIfLoggedIn(page: Page) {
+  // Check if we're on the auth page already
+  if (page.url().includes("/auth")) {
+    return; // Already logged out
+  }
+
+  // Try to find and click the user menu
+  const userMenu = page.locator('button[aria-haspopup="menu"]').last();
+  if (await userMenu.isVisible({ timeout: 2000 })) {
+    await userMenu.click();
+
+    // Click sign out
+    const signOutButton = page.getByRole("menuitem", { name: "Sign out" });
+    if (await signOutButton.isVisible({ timeout: 2000 })) {
+      await signOutButton.click();
+      await waitForPageLoad(page);
+    }
+  }
 }
 
 /**

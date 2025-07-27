@@ -400,34 +400,35 @@ test.describe("Responsive Design", () => {
       await page.goto("/admin/users");
       await verifyLoadingStates(page);
 
-      for (const viewport of [viewports[0], viewports[2]]) {
+      for (const viewport of [viewports[0], viewports[2]].filter(Boolean)) {
         // Mobile and desktop
-        await page.setViewportSize({
-          width: viewport.width,
-          height: viewport.height,
-        });
-        await page.waitForTimeout(200);
+        if (viewport) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          await page.waitForTimeout(200);
 
-        const createButton = page.getByRole("button", { name: "Create User" });
-        if (await createButton.isVisible()) {
-          await createButton.click();
+          const createButton = page.getByRole("button", { name: "Create User" });
+          if (await createButton.isVisible()) {
+            await createButton.click();
 
-          const dialog = page.getByRole("dialog");
-          if (await dialog.isVisible()) {
-            await expect(dialog).toBeVisible();
+            const dialog = page.getByRole("dialog");
+            if (await dialog.isVisible()) {
+              await expect(dialog).toBeVisible();
 
-            // Dialog should fit within viewport
-            const dialogBox = await dialog.boundingBox();
-            if (dialogBox) {
-              expect(dialogBox.width).toBeLessThanOrEqual(viewport.width);
-              expect(dialogBox.height).toBeLessThanOrEqual(viewport.height);
+              // Dialog should fit within viewport
+              const dialogBox = await dialog.boundingBox();
+              if (dialogBox && viewport) {
+                expect(dialogBox.width).toBeLessThanOrEqual(viewport.width);
+                expect(dialogBox.height).toBeLessThanOrEqual(viewport.height);
 
-              // On mobile, dialog should be properly positioned
-              if (viewport.width <= 768) {
-                expect(dialogBox.x).toBeGreaterThanOrEqual(0);
-                expect(dialogBox.y).toBeGreaterThanOrEqual(0);
+                // On mobile, dialog should be properly positioned
+                if (viewport.width <= 768) {
+                  expect(dialogBox.x).toBeGreaterThanOrEqual(0);
+                  expect(dialogBox.y).toBeGreaterThanOrEqual(0);
+                }
               }
-            }
 
             // Form fields should be accessible
             const inputs = dialog.locator("input, select, textarea");
@@ -447,6 +448,7 @@ test.describe("Responsive Design", () => {
 
             // Close dialog
             await page.keyboard.press("Escape");
+            }
           }
         }
       }
@@ -569,24 +571,26 @@ test.describe("Responsive Design", () => {
       const imageCount = await images.count();
 
       if (imageCount > 0) {
-        for (const viewport of [viewports[0], viewports[2]]) {
+        for (const viewport of [viewports[0], viewports[2]].filter(Boolean)) {
           // Mobile and desktop
-          await page.setViewportSize({
-            width: viewport.width,
-            height: viewport.height,
-          });
-          await page.waitForTimeout(200);
+          if (viewport) {
+            await page.setViewportSize({
+              width: viewport.width,
+              height: viewport.height,
+            });
+            await page.waitForTimeout(200);
 
-          const firstImage = images.first();
-          if (await firstImage.isVisible()) {
-            const imageBox = await firstImage.boundingBox();
+            const firstImage = images.first();
+            if (await firstImage.isVisible()) {
+              const imageBox = await firstImage.boundingBox();
 
-            if (imageBox) {
-              // Image should not overflow viewport
-              expect(imageBox.width).toBeLessThanOrEqual(viewport.width);
-              expect(imageBox.x + imageBox.width).toBeLessThanOrEqual(
-                viewport.width,
-              );
+              if (imageBox) {
+                // Image should not overflow viewport
+                expect(imageBox.width).toBeLessThanOrEqual(viewport.width);
+                expect(imageBox.x + imageBox.width).toBeLessThanOrEqual(
+                  viewport.width,
+                );
+              }
             }
           }
         }
@@ -671,11 +675,13 @@ test.describe("Responsive Design", () => {
     }) => {
       await setupAdminSession(context);
 
-      for (const viewport of [viewports[0], viewports[1], viewports[2]]) {
-        await page.setViewportSize({
-          width: viewport.width,
-          height: viewport.height,
-        });
+      for (const viewport of [viewports[0], viewports[1], viewports[2]].filter(Boolean)) {
+        if (viewport) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+        }
         await page.waitForTimeout(200);
 
         // Test card hover interactions

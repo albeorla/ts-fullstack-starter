@@ -264,6 +264,7 @@ test.describe("Dashboard Functionality", () => {
       await waitForPageLoad(page);
 
       // Find profile overview section
+      const profileSection = page.getByText("Profile Overview").locator("..");
       await expect(page.getByText("Profile Overview")).toBeVisible();
 
       // Verify user name and email are displayed somewhere on the page  

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { randomBytes } from "crypto";
 
 const authFile = "e2e/.auth/user.json";
 
