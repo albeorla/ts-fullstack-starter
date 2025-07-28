@@ -51,7 +51,7 @@ test.describe("User Management - Admin Access", () => {
     expect(hasVariant).toBeTruthy();
 
     // Verify user list is visible
-    await expect(page.getByText("Admin User")).toBeVisible();
+    await expect(page.getByText("Admin User").first()).toBeVisible();
     await expect(page.getByText("test")).toBeVisible();
     await expect(page.getByText("albeorla")).toBeVisible();
 

@@ -32,6 +32,9 @@ test.describe("UI Styling and Interactions", () => {
       await page.goto("/");
       await verifyLoadingStates(page);
 
+      // Wait for dashboard content to load
+      await expect(page.getByText("Account Status")).toBeVisible();
+
       // Verify stats cards have enhanced styling
       const statsCards = page.locator('[data-slot="card"]').filter({
         hasText: /Account Status|Total Sessions|Last Login|Your Roles/,

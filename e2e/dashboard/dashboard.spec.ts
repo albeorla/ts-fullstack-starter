@@ -325,8 +325,8 @@ test.describe("Dashboard Functionality", () => {
       await expect(page.getByText("Profile Overview")).toBeVisible();
 
       // Verify user name and email are displayed somewhere on the page
-      await expect(page.getByText("Test User")).toBeVisible();
-      await expect(page.getByText("test@example.com")).toBeVisible();
+      await expect(page.getByText("Admin User")).toBeVisible();
+      await expect(page.getByText("admin@example.com")).toBeVisible();
 
       // Verify role badges in profile
       await verifyRoleBadges(page, ["ADMIN", "USER"]);
