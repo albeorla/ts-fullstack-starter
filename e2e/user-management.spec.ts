@@ -177,9 +177,10 @@ test.describe("User Management - Admin Access", () => {
     await verifyLoadingStates(page);
 
     // Find a specific user card - use the admin user we know exists
+    // Be specific to avoid matching "Admin Users" stats card
     const userCard = page
       .locator('[data-slot="card"]')
-      .filter({ hasText: "Admin User" });
+      .filter({ hasText: "admin@example.com" });
     await expect(userCard).toBeVisible();
 
     // Verify user information is displayed

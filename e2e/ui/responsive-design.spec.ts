@@ -44,6 +44,9 @@ test.describe("Responsive Design", () => {
 
         // Verify dashboard loads
         await verifyDashboard(page);
+        
+        // Wait for stats cards to load
+        await expect(page.getByText("Account Status")).toBeVisible();
 
         // Check stats cards are visible and properly laid out
         const statsCards = page.locator('[data-slot="card"]').filter({
