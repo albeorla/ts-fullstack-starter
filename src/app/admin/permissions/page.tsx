@@ -108,7 +108,7 @@ export default function PermissionsPage() {
         {/* Header */}
         <header className="bg-card border-b">
           <div className="container mx-auto px-4 py-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold">Permission Management</h1>
                 <p className="text-muted-foreground mt-1">
@@ -156,7 +156,7 @@ export default function PermissionsPage() {
             {permissions?.map((permission) => (
               <Card key={permission.id}>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <Key className="text-muted-foreground h-5 w-5" />
                       <div>

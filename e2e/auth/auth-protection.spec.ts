@@ -90,24 +90,10 @@ test.describe("Authentication & Authorization Protection", () => {
 
           const currentUrl = page.url();
 
-          if (currentUrl.includes(route.path)) {
-            // Still on admin route - should show access denied
-            const accessDenied = await page
-              .getByText(/access denied/i)
-              .or(page.getByText(/not authorized/i))
-              .or(page.getByText(/forbidden/i))
-              .or(page.getByText(/admin only/i))
-              .or(page.getByText(/insufficient permissions/i))
-              .isVisible()
-              .catch(() => false);
-
-            expect(accessDenied).toBeTruthy();
-          } else {
-            // Redirected away from admin route
-            expect(currentUrl).not.toContain("/admin");
-            // Should be redirected to dashboard or error page
-            expect(currentUrl).toMatch(/\/(error|unauthorized)?$/);
-          }
+          // Should be redirected away from admin route
+          expect(currentUrl).not.toContain("/admin");
+          // Should be redirected to dashboard/home page
+          expect(currentUrl).toMatch(/\/$/);
 
           await takeScreenshot(
             page,

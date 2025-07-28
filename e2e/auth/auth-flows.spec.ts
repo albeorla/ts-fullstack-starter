@@ -87,9 +87,9 @@ test.describe("Authentication Flows", () => {
       );
     }
 
-    // Verify user info shows regular user
+    // Verify user info shows regular user - use more specific locator
     await expect(
-      page.getByText("test").or(page.getByText("test@example.com")),
+      page.getByRole("heading", { name: "Test User" }).first(),
     ).toBeVisible();
 
     await takeScreenshot(page, "user-logged-in");

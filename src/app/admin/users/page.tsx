@@ -194,9 +194,9 @@ export default function UsersPage() {
               users.map((user) => (
                 <Card key={user.id} variant="interactive">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center space-x-4">
-                        <Avatar className="ring-primary/20 h-12 w-12 ring-2">
+                        <Avatar className="ring-primary/20 h-12 w-12 ring-2 flex-shrink-0">
                           <AvatarImage
                             src={user.image ?? ""}
                             alt={user.name ?? ""}
@@ -222,9 +222,9 @@ export default function UsersPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <div className="mb-2 flex flex-wrap justify-end gap-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="sm:text-right">
+                          <div className="mb-2 flex flex-wrap sm:justify-end gap-1">
                             {user.roles.map((userRole) => (
                               <Badge key={userRole.role.id} variant="secondary">
                                 {userRole.role.name}

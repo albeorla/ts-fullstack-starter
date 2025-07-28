@@ -94,6 +94,9 @@ test.describe("Dashboard Functionality", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      
+      // Navigate to dashboard
+      await page.goto("/");
 
       // Wait for page to fully load and any loading states to resolve
       await page.waitForLoadState("networkidle");
@@ -161,14 +164,9 @@ test.describe("Dashboard Functionality", () => {
         );
       }
 
-      // Should show user's actual name, email, or admin status
-      const userInfo = page
-        .getByText("Admin User")
-        .or(page.getByText("admin@example.com"))
-        .or(page.getByText("Administrator"))
-        .or(page.getByText("ADMIN"));
-
-      await expect(userInfo).toBeVisible({ timeout: 10000 });
+      // Should show user's actual name in greeting
+      const greeting = page.getByRole("heading", { name: /Good \w+, Admin!/ });
+      await expect(greeting).toBeVisible({ timeout: 10000 });
 
       // Verify user profile section shows correct info
       const profileSection = page
@@ -392,6 +390,8 @@ test.describe("Dashboard Functionality", () => {
 
     test("navigation menu works correctly", async ({ page, context }) => {
       await setupAdminSession(context);
+      await page.goto("/");
+      await waitForPageLoad(page);
 
       // Test Dashboard navigation
       const dashboardNav = page.getByRole("button", { name: "Dashboard" });
@@ -417,6 +417,8 @@ test.describe("Dashboard Functionality", () => {
 
     test("theme toggle works on dashboard", async ({ page, context }) => {
       await setupAdminSession(context);
+      await page.goto("/");
+      await waitForPageLoad(page);
 
       const { currentTheme, newTheme } = await verifyThemeToggle(page);
 
@@ -560,6 +562,8 @@ test.describe("Dashboard Functionality", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
+      await waitForPageLoad(page);
 
       // Test desktop view
       await page.setViewportSize({ width: 1920, height: 1080 });
