@@ -94,7 +94,7 @@ test.describe("Dashboard Functionality", () => {
       context,
     }) => {
       await setupAdminSession(context);
-      
+
       // Navigate to dashboard
       await page.goto("/");
 
