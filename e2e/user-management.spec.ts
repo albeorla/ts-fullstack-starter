@@ -255,7 +255,7 @@ test.describe("User Management - Access Control", () => {
     context,
   }) => {
     await setupUserSession(context);
-    
+
     // Navigate to dashboard
     await page.goto("/");
     await waitForPageLoad(page);
