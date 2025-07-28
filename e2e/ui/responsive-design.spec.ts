@@ -39,6 +39,7 @@ test.describe("Responsive Design", () => {
           height: viewport.height,
         });
         await setupAdminSession(context);
+        await page.goto("/");
         await verifyLoadingStates(page);
 
         // Verify dashboard loads
@@ -96,6 +97,7 @@ test.describe("Responsive Design", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
 
       // Start with desktop
@@ -517,6 +519,7 @@ test.describe("Responsive Design", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
 
       for (const viewport of viewports) {
@@ -567,6 +570,7 @@ test.describe("Responsive Design", () => {
 
     test("images and media adapt to viewport", async ({ page, context }) => {
       await setupAdminSession(context);
+      await page.goto("/");
 
       // Look for any images or media content
       const images = page.locator('img, [role="img"], svg');
@@ -606,6 +610,7 @@ test.describe("Responsive Design", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
 
       const card = page.locator('[data-slot="card"]').first();
@@ -653,6 +658,7 @@ test.describe("Responsive Design", () => {
 
       const startTime = Date.now();
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
       const loadTime = Date.now() - startTime;
 
@@ -676,6 +682,7 @@ test.describe("Responsive Design", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
 
       for (const viewport of [viewports[0], viewports[1], viewports[2]].filter(
         Boolean,

@@ -64,10 +64,13 @@ setup("authenticate as admin", async ({ page, context }) => {
       });
 
       console.error("Admin authentication failed - redirected to auth page");
-      
+
       // Check cookies for debugging
       const cookies = await context.cookies();
-      console.log("Cookies set:", cookies.map(c => ({ name: c.name, domain: c.domain, path: c.path })));
+      console.log(
+        "Cookies set:",
+        cookies.map((c) => ({ name: c.name, domain: c.domain, path: c.path })),
+      );
 
       throw new Error(
         "Admin authentication setup failed - session not recognized by application",
@@ -77,9 +80,12 @@ setup("authenticate as admin", async ({ page, context }) => {
     // Additional check - wait for admin page content
     try {
       // The admin page should be accessible
-      await page.waitForSelector('text=/Admin|Dashboard|Users|Roles|Permissions/', {
-        timeout: 10000,
-      });
+      await page.waitForSelector(
+        "text=/Admin|Dashboard|Users|Roles|Permissions/",
+        {
+          timeout: 10000,
+        },
+      );
       console.log("✅ Admin authentication verified - admin content found");
     } catch (error) {
       // Take a screenshot for debugging
@@ -89,7 +95,12 @@ setup("authenticate as admin", async ({ page, context }) => {
       });
 
       console.error("Admin authentication verification timeout");
-      console.error("Page content:", await page.textContent("body").catch(() => "Could not get page content"));
+      console.error(
+        "Page content:",
+        await page
+          .textContent("body")
+          .catch(() => "Could not get page content"),
+      );
 
       throw new Error(
         "Admin authentication setup failed - admin content not found",

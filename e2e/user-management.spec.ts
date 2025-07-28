@@ -37,8 +37,18 @@ test.describe("User Management - Admin Access", () => {
       "Admin Users",
     ]);
 
-    // Verify stats cards have enhanced styling
-    await verifyCardStyling(page, '[data-slot="card"]:first-child');
+    // Verify stats cards have enhanced styling - use a more specific selector
+    const firstCard = page.locator('[data-slot="card"]').first();
+    await expect(firstCard).toBeVisible();
+
+    // Check for enhanced card variants
+    const hasVariant = await firstCard.evaluate((el) => {
+      return (
+        el.className.includes("shadow-") ||
+        el.className.includes("hover:shadow-")
+      );
+    });
+    expect(hasVariant).toBeTruthy();
 
     // Verify user list is visible
     await expect(page.getByText("Admin User")).toBeVisible();
@@ -90,12 +100,24 @@ test.describe("User Management - Admin Access", () => {
     const editButton = page.getByRole("button", { name: "Edit Roles" }).first();
     await expect(editButton).toBeVisible();
 
-    const dialog = await verifyDialog(page, "Edit Roles", "Edit User Roles");
+    // Click the specific button we found
+    await editButton.click();
 
-    // Verify role checkboxes are available
-    await expect(dialog.getByText("ADMIN")).toBeVisible();
-    await expect(dialog.getByText("USER")).toBeVisible();
-    await expect(dialog.getByText("TEST")).toBeVisible();
+    // Verify dialog is visible
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText("Edit User Roles")).toBeVisible();
+
+    // Verify role checkboxes are available - use more specific selectors
+    await expect(
+      dialog.locator("span.font-semibold").filter({ hasText: "ADMIN" }),
+    ).toBeVisible();
+    await expect(
+      dialog.locator("span.font-semibold").filter({ hasText: "USER" }),
+    ).toBeVisible();
+    await expect(
+      dialog.locator("span.font-semibold").filter({ hasText: "TEST" }),
+    ).toBeVisible();
 
     // Verify form functionality
     const checkboxes = dialog.locator('input[type="checkbox"]');
@@ -117,9 +139,10 @@ test.describe("User Management - Admin Access", () => {
     await verifyLoadingStates(page);
 
     // Count actual users displayed and compare with stats
+    // User cards have the "Edit Roles" button, which stats cards don't have
     const userCards = page
       .locator('[data-slot="card"]')
-      .filter({ hasText: "@" });
+      .filter({ has: page.getByRole("button", { name: "Edit Roles" }) });
     const userCount = await userCards.count();
 
     // Get total users stat
@@ -127,8 +150,7 @@ test.describe("User Management - Admin Access", () => {
       .locator('[data-slot="card"]')
       .filter({ hasText: "Total Users" });
     const totalUsersText = await totalUsersCard
-      .locator("div")
-      .filter({ hasText: /^\d+$/ })
+      .locator(".text-2xl.font-bold")
       .textContent();
     const displayedCount = parseInt(totalUsersText || "0");
 
@@ -144,8 +166,7 @@ test.describe("User Management - Admin Access", () => {
       .locator('[data-slot="card"]')
       .filter({ hasText: "Admin Users" });
     const adminUsersText = await adminUsersCard
-      .locator("div")
-      .filter({ hasText: /^\d+$/ })
+      .locator(".text-2xl.font-bold")
       .textContent();
     const displayedAdminCount = parseInt(adminUsersText || "0");
 
@@ -234,6 +255,10 @@ test.describe("User Management - Access Control", () => {
     context,
   }) => {
     await setupUserSession(context);
+    
+    // Navigate to dashboard
+    await page.goto("/");
+    await waitForPageLoad(page);
 
     // Check dashboard for admin navigation
     await expect(
@@ -311,9 +336,14 @@ test.describe("User Management - UI Interactions", () => {
     const html = page.locator("html");
     const initialClass = await html.getAttribute("class");
 
-    // Toggle theme
+    // Click theme toggle to open dropdown
     await themeButton.click();
-    await page.waitForTimeout(200);
+
+    // Select "Dark" theme from dropdown
+    await page.getByRole("menuitem", { name: "Dark" }).click();
+
+    // Wait for theme transition
+    await page.waitForTimeout(500);
 
     // Verify theme changed
     const newClass = await html.getAttribute("class");

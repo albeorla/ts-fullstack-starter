@@ -45,13 +45,16 @@ export async function createTestSession(role: "USER" | "ADMIN" = "USER") {
       throw new Error(`Role ${role} not found in database`);
     }
 
-    // Clear existing roles and assign new one
-    await prisma.userRole.deleteMany({
-      where: { userId: user.id },
-    });
-
-    await prisma.userRole.create({
-      data: {
+    // Upsert the user role to avoid constraint violations
+    await prisma.userRole.upsert({
+      where: {
+        userId_roleId: {
+          userId: user.id,
+          roleId: roleRecord.id,
+        },
+      },
+      update: {}, // No update needed, just ensure it exists
+      create: {
         userId: user.id,
         roleId: roleRecord.id,
       },

@@ -2,7 +2,13 @@
 
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Users, Shield, Lock } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +24,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <h1 className="mb-6 text-3xl font-bold">Admin Dashboard</h1>
       <p className="text-muted-foreground mb-8">
         Manage users, roles, and permissions for your application.
       </p>
@@ -77,4 +83,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-} 
+}

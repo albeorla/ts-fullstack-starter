@@ -1,0 +1,9 @@
+yarn run v1.22.22
+$ yarn typecheck && yarn lint && yarn format:check && yarn test:e2e:ci
+$ tsc --noEmit
+$ next lint --cache-location .eslintcache
+✔ No ESLint warnings or errors
+$ prettier --check "**/*.{ts,tsx,js,jsx,mdx}" --cache
+Checking formatting...
+All matched files use Prettier code style!
+$ CI=true playwright test --reporter=html,github,junit --max-failures=20

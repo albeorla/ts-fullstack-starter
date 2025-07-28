@@ -29,6 +29,7 @@ test.describe("UI Styling and Interactions", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
 
       // Verify stats cards have enhanced styling
@@ -268,11 +269,11 @@ test.describe("UI Styling and Interactions", () => {
       if ((await adminBadges.count()) > 0) {
         const adminBadge = adminBadges.first();
 
-        // Test for glow-admin class or box-shadow
+        // Test for glow-red class or box-shadow
         const hasGlowEffect = await adminBadge.evaluate((el) => {
           const style = window.getComputedStyle(el);
           return (
-            el.className.includes("glow-admin") ||
+            el.className.includes("glow-red") ||
             style.boxShadow.includes("rgba(239, 68, 68") ||
             style.boxShadow.includes("rgba(239,68,68")
           );
@@ -333,6 +334,7 @@ test.describe("UI Styling and Interactions", () => {
 
     test("card hover animations are smooth", async ({ page, context }) => {
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
 
       const statsCard = page.locator('[data-slot="card"]').first();
@@ -368,6 +370,8 @@ test.describe("UI Styling and Interactions", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
+      await verifyLoadingStates(page);
 
       const { currentTheme, newTheme } = await verifyThemeToggle(page);
 
@@ -500,6 +504,7 @@ test.describe("UI Styling and Interactions", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
 
       // Test dashboard navigation
       const dashboardNav = page.getByRole("button", { name: "Dashboard" });
@@ -549,12 +554,11 @@ test.describe("UI Styling and Interactions", () => {
 
     test("glow utility classes work correctly", async ({ page, context }) => {
       await setupAdminSession(context);
+      await page.goto("/");
       await verifyLoadingStates(page);
 
       // Look for elements with glow classes
-      const glowElements = page.locator(
-        '[class*="glow-"], .glow-admin, .glow-user, .glow-permission',
-      );
+      const glowElements = page.locator('[class*="glow-"]');
 
       if ((await glowElements.count()) > 0) {
         const glowEl = glowElements.first();
@@ -565,8 +569,8 @@ test.describe("UI Styling and Interactions", () => {
             style.boxShadow.includes("rgba") &&
             (style.boxShadow.includes("239, 68, 68") || // red glow
               style.boxShadow.includes("59, 130, 246") || // blue glow
-              style.boxShadow.includes("16, 185, 129"))
-          ); // emerald glow
+              style.boxShadow.includes("147, 51, 234"))
+          ); // purple glow
         });
         expect(hasGlowStyling).toBeTruthy();
       } else {
@@ -581,6 +585,7 @@ test.describe("UI Styling and Interactions", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
 
       // Look for gradient elements
       const gradientElements = page.locator(
@@ -612,6 +617,7 @@ test.describe("UI Styling and Interactions", () => {
       context,
     }) => {
       await setupAdminSession(context);
+      await page.goto("/");
 
       // Look for animation classes
       const animatedElements = page.locator(

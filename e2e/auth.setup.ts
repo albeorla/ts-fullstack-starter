@@ -65,10 +65,13 @@ setup("authenticate", async ({ page, context }) => {
       });
 
       console.error("Authentication failed - redirected to auth page");
-      
+
       // Check cookies for debugging
       const cookies = await context.cookies();
-      console.log("Cookies set:", cookies.map(c => ({ name: c.name, domain: c.domain, path: c.path })));
+      console.log(
+        "Cookies set:",
+        cookies.map((c) => ({ name: c.name, domain: c.domain, path: c.path })),
+      );
 
       throw new Error(
         "Authentication setup failed - session not recognized by application",
@@ -78,7 +81,7 @@ setup("authenticate", async ({ page, context }) => {
     // Additional check - wait for the authenticated layout to load
     try {
       // The home page should show the greeting message for authenticated users
-      await page.waitForSelector('text=/Good (morning|afternoon|evening)/', {
+      await page.waitForSelector("text=/Good (morning|afternoon|evening)/", {
         timeout: 10000,
       });
       console.log("✅ Authentication verified - user greeting found");
@@ -90,7 +93,12 @@ setup("authenticate", async ({ page, context }) => {
       });
 
       console.error("Authentication verification timeout");
-      console.error("Page content:", await page.textContent("body").catch(() => "Could not get page content"));
+      console.error(
+        "Page content:",
+        await page
+          .textContent("body")
+          .catch(() => "Could not get page content"),
+      );
 
       throw new Error(
         "Authentication setup failed - authenticated content not found",
