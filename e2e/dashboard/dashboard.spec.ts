@@ -165,7 +165,9 @@ test.describe("Dashboard Functionality", () => {
       }
 
       // Should show user's actual name in greeting
-      const adminGreeting = page.getByRole("heading", { name: /Good \w+, Admin!/ });
+      const adminGreeting = page.getByRole("heading", {
+        name: /Good \w+, Admin!/,
+      });
       await expect(adminGreeting).toBeVisible({ timeout: 10000 });
 
       // Verify user profile section shows correct info
