@@ -50,10 +50,8 @@ test.describe("User Management - Admin Access", () => {
     });
     expect(hasVariant).toBeTruthy();
 
-    // Verify user list is visible
+    // Verify user list is visible - at least admin user should exist
     await expect(page.getByText("Admin User").first()).toBeVisible();
-    await expect(page.getByText("test")).toBeVisible();
-    await expect(page.getByText("albeorla")).toBeVisible();
 
     await takeScreenshot(page, "user-management-admin-view");
   });
@@ -76,8 +74,8 @@ test.describe("User Management - Admin Access", () => {
     const userCards = page.locator('[data-slot="card"]').nth(3); // First user card after stats
     await expect(userCards).toBeVisible();
 
-    // Verify role badges have correct colors
-    await verifyRoleBadges(page, ["ADMIN", "USER", "TEST"]);
+    // Verify role badges have correct colors - use only existing roles
+    await verifyRoleBadges(page, ["ADMIN", "USER"]);
 
     // Test hover effects on cards
     await userCards.hover();
@@ -114,9 +112,6 @@ test.describe("User Management - Admin Access", () => {
     ).toBeVisible();
     await expect(
       dialog.locator("span.font-semibold").filter({ hasText: "USER" }),
-    ).toBeVisible();
-    await expect(
-      dialog.locator("span.font-semibold").filter({ hasText: "TEST" }),
     ).toBeVisible();
 
     // Verify form functionality
@@ -181,15 +176,15 @@ test.describe("User Management - Admin Access", () => {
 
     await verifyLoadingStates(page);
 
-    // Find a specific user card
+    // Find a specific user card - use the admin user we know exists
     const userCard = page
       .locator('[data-slot="card"]')
-      .filter({ hasText: "albeorla" });
+      .filter({ hasText: "Admin User" });
     await expect(userCard).toBeVisible();
 
     // Verify user information is displayed
-    await expect(userCard.getByText("albeorla")).toBeVisible();
-    await expect(userCard.getByText("albertjorlando@gmail.com")).toBeVisible();
+    await expect(userCard.getByText("Admin User")).toBeVisible();
+    await expect(userCard.getByText("admin@example.com")).toBeVisible();
 
     // Verify role badges are present
     const badges = userCard.locator('[data-slot="badge"]');

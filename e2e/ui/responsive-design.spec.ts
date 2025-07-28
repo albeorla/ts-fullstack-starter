@@ -527,8 +527,10 @@ test.describe("Responsive Design", () => {
         });
         await page.waitForTimeout(200);
 
-        // Check main heading
-        const mainHeading = page.getByRole("heading", { name: "Dashboard" });
+        // Check main heading - use greeting instead of "Dashboard"
+        const mainHeading = page.getByRole("heading", {
+          name: /Good (morning|afternoon|evening)/,
+        });
         if (await mainHeading.isVisible()) {
           const headingStyle = await mainHeading.evaluate((el) => {
             const style = window.getComputedStyle(el);
