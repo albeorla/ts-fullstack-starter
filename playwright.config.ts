@@ -56,6 +56,9 @@ export default defineConfig({
       NODE_ENV: "test",
       ENABLE_TEST_AUTH: "true",
       AUTH_SECRET: process.env.AUTH_SECRET || randomBytes(32).toString("hex"),
+      DATABASE_URL:
+        process.env.DATABASE_URL ||
+        "postgresql://postgres:password@localhost:5432/albeorla-ts-starter",
     },
   },
 });
