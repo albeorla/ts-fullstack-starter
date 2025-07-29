@@ -5,4 +5,4 @@ RUN yarn install --frozen-lockfile
 COPY . .
 ENV PORT=3001
 ENV NODE_ENV=test
-CMD ["yarn","test:e2e:ci"]
+CMD ["sh","-c","yarn prisma generate && yarn prisma db push && yarn prisma db seed && yarn test:e2e:ci"]

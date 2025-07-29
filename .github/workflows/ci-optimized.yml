@@ -331,101 +331,12 @@ jobs:
     if: |
       (needs.changes.outputs.source == 'true' || needs.changes.outputs.tests == 'true') &&
       (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'test:e2e'))
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      # Restore all caches
-      - name: 💾 Restore dependencies cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ~/.cache/yarn
-            node_modules
-            .next/cache
-          key: deps-${{ runner.os }}-${{ hashFiles('yarn.lock', 'package.json') }}
-
-      - name: 💾 Restore Prisma cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            node_modules/.prisma
-            prisma/generated
-          key: prisma-${{ runner.os }}-${{ hashFiles('prisma/schema.prisma') }}
-
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: build-artifacts
-
-      # Playwright browser caching
-      - name: 💾 Cache Playwright browsers
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package.json') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
-
-      - name: 📦 Install dependencies (cached)
-        run: yarn install --frozen-lockfile --prefer-offline
-
-      - name: 🎭 Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn playwright install --with-deps
-
-      - name: 🎭 Install Playwright dependencies only
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: yarn playwright install-deps
-
-      - name: 🗄️ Setup database
-        run: |
-          if [[ "${{ needs.changes.outputs.schema }}" == "true" ]]; then
-            echo "Schema changes detected, rebuilding database..."
-            yarn prisma db push --force-reset
-            yarn prisma db seed
-          else
-            echo "No schema changes, using existing database setup..."
-            yarn prisma db push
-            yarn prisma db seed
-          fi
-
-      # Use pre-built application
-      # Run different test strategies based on context
-      - name: 🎭 Run E2E tests with coverage
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            # Faster test run for PRs - reduced retries and parallel execution
-            yarn test:e2e --reporter=html,github --max-failures=10 --workers=2
-          else
-            # Full test suite for main/develop branches
-            yarn test:e2e --reporter=html,github --max-failures=20 --workers=1
-          fi
-        env:
-          CI: true
+      - name: 🐳 Run Docker Compose tests
+        run: docker-compose up --build --exit-code-from e2e e2e
 
       - name: 📊 Upload coverage to Codecov
         if: always()

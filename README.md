@@ -43,8 +43,10 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 Run the Playwright test suite inside Docker with a bundled PostgreSQL database:
 
 ```bash
-# Build images and run tests
-docker-compose run --build e2e
+# Build services and run tests
+docker-compose up --build --exit-code-from e2e e2e
 ```
 
 The `docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
+
+Our GitHub Actions workflow uses the same command to run E2E tests in the pipeline.
