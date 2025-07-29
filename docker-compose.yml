@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test_db
+    ports:
+      - "5432:5432"
+  e2e:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/test_db
+      AUTH_SECRET: test-secret
+      AUTH_DISCORD_ID: test-client-id
+      AUTH_DISCORD_SECRET: test-client-secret
+      NEXTAUTH_URL: http://localhost:3000

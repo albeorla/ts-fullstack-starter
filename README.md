@@ -37,3 +37,14 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+## 🐳 Docker E2E Testing
+
+Run the Playwright test suite inside Docker with a bundled PostgreSQL database:
+
+```bash
+# Build images and run tests
+docker-compose run --build e2e
+```
+
+The `docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
