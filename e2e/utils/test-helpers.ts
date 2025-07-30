@@ -267,7 +267,7 @@ export async function verifyRoleBadges(page: Page, expectedRoles: string[]) {
       .locator(`[data-slot="badge"]:has-text("${role}")`)
       .first();
     await expect(badge).toBeVisible();
-    
+
     // Just verify the badge exists and is visible
     // Gradient classes were removed from the UI
   }
@@ -368,7 +368,7 @@ export async function verifyThemeToggle(page: Page) {
 
   // Click theme toggle to open dropdown
   await themeButton.click();
-  
+
   // Toggle to opposite theme
   if (currentTheme?.includes("dark")) {
     await page.getByRole("menuitem", { name: "Light" }).click();
