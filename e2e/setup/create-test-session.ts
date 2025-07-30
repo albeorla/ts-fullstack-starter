@@ -3,6 +3,12 @@ import { randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
 
+// Track logged sessions to avoid duplicate messages
+const loggedSessions = new Set<string>();
+
+// Control logging verbosity via environment variable
+const isVerbose = process.env.VERBOSE_TEST_LOGS === "true" || process.env.TEST_LOG_LEVEL === "verbose";
+
 interface CreateTestSessionOptions {
   email?: string;
   name?: string;
@@ -16,7 +22,14 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
     role = "USER",
   } = options;
 
-  console.log(`Creating test session for ${role} user...`);
+  // Log only if verbose mode is enabled or this is the first time for this role
+  const sessionKey = `${role}-${email}`;
+  const shouldLog = isVerbose || !loggedSessions.has(sessionKey);
+  
+  if (shouldLog) {
+    console.log(`Creating test session for ${role} user...`);
+    loggedSessions.add(sessionKey);
+  }
 
   try {
     // Create or update test user
@@ -87,7 +100,9 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
       },
     });
 
-    console.log(`✅ Test session created for ${email} (${role})`);
+    if (shouldLog) {
+      console.log(`✅ Test session created for ${email} (${role})`);
+    }
 
     // Return the session details
     return {

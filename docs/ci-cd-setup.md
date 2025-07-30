@@ -109,21 +109,10 @@ This project uses a comprehensive CI/CD pipeline with GitHub Actions that ensure
 
 ### Running Tests Locally:
 ```bash
-# Run all E2E tests
-yarn test:e2e:ci --max-failures=0 --reporter=console
-
-# Run with UI (interactive)
-yarn test:e2e:ui
-
-# Run in headed mode (see browser)
-yarn test:e2e:headed
-
-# Run with coverage
-yarn test:e2e:coverage
-
-# Debug mode
-yarn test:e2e:debug
+yarn test:e2e:ci
 ```
+
+Note: Dockerfile includes DB readiness check with pg_isready.
 
 ### Database Setup:
 ```bash

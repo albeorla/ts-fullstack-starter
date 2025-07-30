@@ -55,16 +55,48 @@ This script requires internet access to download Playwright browsers.
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
 
-## 🐳 Docker E2E Testing
+## 🐳 Docker Support
 
+### Development with Docker
+```bash
+# Run development environment with hot reload
+docker-compose -f docker-compose.dev.yml up
+
+# Run in detached mode
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+### E2E Testing with Docker
 Run the Playwright test suite inside Docker with a bundled PostgreSQL database:
 
 ```bash
-# Build services and run tests
+# Run E2E tests in Docker (uses .env.test)
+yarn test:e2e:docker
+
+# Or manually with docker-compose
 docker-compose up --build --exit-code-from e2e e2e
+
+# View test results
+ls -la playwright-report/
+ls -la test-results/
 ```
 
 The `docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
+
+### Docker Commands
+```bash
+# Stop all containers
+docker-compose down
+
+# Remove volumes (clean database)
+docker-compose down -v
+
+# View logs
+docker-compose logs -f [service_name]
+
+# Build without cache
+docker-compose build --no-cache
+```
 
 Our GitHub Actions workflow uses the same command to run E2E tests in the pipeline.
 

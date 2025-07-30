@@ -40,8 +40,9 @@ These are already in `.gitignore` but always double-check before committing.
 | `yarn test:e2e` | Run all tests | Standard test run |
 | `yarn test:e2e:headed` | Run tests with browser visible | Debugging |
 | `yarn test:e2e:ui` | Open Playwright UI mode | Interactive debugging |
-| `yarn test:e2e:ci --max-failures=0 --reporter=console` | Run tests in CI mode | CI/CD pipelines |
+| `yarn test:e2e:ci` | Run tests in CI mode | CI/CD pipelines |
 | `yarn test:e2e:debug` | Run with debug logs | Troubleshooting |
+| `yarn test:e2e:verbose` | Run with verbose session logging | Debug session creation |
 
 ## How It Works
 
@@ -102,55 +103,9 @@ PORT=3002 yarn test:e2e
 ```
 
 ## CI/CD Setup
+- Uses updated Dockerfile with DB wait logic.
 
-For GitHub Actions:
-
-```yaml
-name: E2E Tests
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          
-      - name: Install dependencies
-        run: yarn install
-        
-      - name: Setup database
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
-        run: |
-          yarn prisma db push
-          yarn prisma db seed
-          
-      - name: Run E2E tests
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
-          CI: true
-        run: yarn test:e2e:ci
-```
+Last Updated: October 2024
 
 ## Debugging Tips
 
@@ -193,6 +148,32 @@ Required for tests:
 - `DATABASE_URL`: PostgreSQL connection string
 - `AUTH_SECRET`: NextAuth secret (can be any string for tests)
 - `NODE_ENV=test`: Automatically set by test runner
+
+Optional for tests:
+- `VERBOSE_TEST_LOGS=true`: Enable verbose session creation logging (default: false)
+- `TEST_LOG_LEVEL=verbose`: Alternative way to enable verbose logging
+
+## Logging Control
+
+By default, test session creation logs are minimized to reduce noise. Each unique user/role combination logs only once per test run.
+
+To enable verbose logging for debugging session creation issues:
+
+```bash
+# Using the dedicated script
+yarn test:e2e:verbose
+
+# Or set environment variable directly
+VERBOSE_TEST_LOGS=true yarn test:e2e
+
+# Or use TEST_LOG_LEVEL
+TEST_LOG_LEVEL=verbose yarn test:e2e
+```
+
+This will show:
+- Every session creation attempt
+- Success confirmations for each test
+- Detailed error messages if session creation fails
 
 ## Troubleshooting Checklist
 

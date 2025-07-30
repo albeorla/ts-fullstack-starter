@@ -1,8 +1,32 @@
-FROM mcr.microsoft.com/playwright:v1.42.0-jammy
+FROM mcr.microsoft.com/playwright:v1.54.1-jammy
+
 WORKDIR /app
-COPY package.json yarn.lock ./
+
+# Copy package files first for better caching
+COPY package*.json ./
+COPY yarn.lock ./
+
+# Copy prisma schema for postinstall script
+COPY prisma ./prisma
+
+# Install dependencies
 RUN yarn install --frozen-lockfile
+
+# Copy application code
 COPY . .
-ENV PORT=3001
+
+# Generate Prisma client
+RUN yarn prisma generate
+
+# Set default environment
 ENV NODE_ENV=test
-CMD ["sh","-c","yarn prisma generate && yarn prisma db push && yarn prisma db seed && yarn test:e2e:ci"]
+ENV PORT=3001
+
+# Expose ports
+EXPOSE 3000 3001
+
+# Make entrypoint executable
+RUN chmod +x /app/entrypoint.sh
+
+# Use entrypoint for flexible startup
+ENTRYPOINT ["/app/entrypoint.sh"]
