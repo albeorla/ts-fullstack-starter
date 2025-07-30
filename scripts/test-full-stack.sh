@@ -47,9 +47,19 @@ echo
 
 cd "$PROJECT_ROOT"
 
+# Check if Docker is running
+log "🔍 Checking Docker availability..."
+if ! docker info >/dev/null 2>&1; then
+    log_error "Docker is not running"
+    echo "  Please start Docker Desktop and try again"
+    echo "  Or run: ./scripts/validate-phase2.sh for tests without Docker"
+    exit 1
+fi
+log_success "Docker is running"
+
 # Start services
 log "🚀 Starting Docker services..."
-if docker compose up -d postgres; then
+if docker compose up -d db; then
     log_success "Database service started"
 else
     log_error "Failed to start database"
@@ -59,7 +69,7 @@ fi
 # Wait for database
 log "⏳ Waiting for database to be ready..."
 timeout=60
-while ! docker compose exec postgres pg_isready -U postgres >/dev/null 2>&1; do
+while ! docker compose exec db pg_isready -U postgres >/dev/null 2>&1; do
     sleep 1
     timeout=$((timeout - 1))
     if [[ $timeout -le 0 ]]; then
