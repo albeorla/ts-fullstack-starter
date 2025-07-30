@@ -11,23 +11,31 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 2 : undefined, // Increased for better CI performance
+  workers: isCI ? 1 : undefined, // Sequential execution in CI for stability
+  quiet: !!process.env.CI, // Reduce output verbosity in CI
+  failOnFlakyTests: !!process.env.CI, // Fail CI on flaky tests
+  globalTimeout: isCI ? 60 * 60 * 1000 : undefined, // 1 hour timeout for CI
 
-  // Use different reporters for CI vs local
+  // Optimized reporting: minimal in CI, detailed locally
   reporter: isCI
     ? [
+        ["dot"], // Concise output for CI
+        ["github"], // GitHub annotations
+      ]
+    : [
         ["list"],
-        ["html", { open: "never" }],
-        ["github"],
-        ["junit", { outputFile: "test-results/results.xml" }],
-      ] // CI: list output + HTML report + GitHub + JUnit
-    : [["list"], ["html", { open: "on-failure" }]], // Local: list output + HTML on failure only
+        ["html", { open: "on-failure", outputFolder: "playwright-report" }],
+        ["json", { outputFile: "test-results/results.json" }],
+      ], // Local: detailed reporting with JSON
 
   use: {
     baseURL: "http://localhost:3001",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    // Enhanced debugging options
+    actionTimeout: 10000,
+    navigationTimeout: 30000,
   },
 
   projects: [

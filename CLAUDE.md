@@ -37,7 +37,18 @@ yarn db:studio        # Open Prisma Studio GUI
 yarn test:e2e         # Run Playwright E2E tests
 yarn test:e2e:ui      # Run tests with UI mode
 yarn test:e2e:headed  # Run tests in headed browser
-yarn test:e2e:ci      # Run tests in CI mode
+yarn test:e2e:ci      # Run tests in CI mode (optimized, minimal output)
+yarn test:e2e:docker  # Run tests in Docker with bundled PostgreSQL
+
+# Logging Control (NEW)
+yarn test:e2e:silent  # Run tests with no output (LOG_LEVEL=SILENT)
+yarn test:e2e:debug   # Run tests with debug logging (LOG_LEVEL=DEBUG)
+yarn test:e2e:verbose # Run tests with verbose logging (LOG_LEVEL=VERBOSE)
+
+# Test Filtering
+yarn test:e2e:quick   # Run tests excluding @slow tagged tests
+yarn test:e2e:slow    # Run only @slow tagged tests
+yarn test:e2e:coverage # Run tests with HTML and JUnit reports
 ```
 
 ### Build & Production
@@ -45,6 +56,13 @@ yarn test:e2e:ci      # Run tests in CI mode
 yarn build            # Build for production
 yarn start            # Start production server
 yarn preview          # Build and start production server
+```
+
+### Docker Commands
+```bash
+yarn test:e2e:docker  # Run E2E tests in Docker with PostgreSQL
+docker-compose up --build --exit-code-from e2e e2e  # Manual Docker test run
+docker-compose -f docker-compose.dev.yml up  # Development with hot reload
 ```
 
 ## High-Level Architecture
@@ -89,6 +107,30 @@ src/
 
 5. **Component Architecture**: shadcn/ui components in `src/components/ui/` use Radix UI primitives with Tailwind CSS v4 styling.
 
+## Test Logging System
+
+The project uses a centralized logging system for E2E tests with configurable verbosity:
+
+### Log Levels (in order of verbosity):
+- `SILENT` - No output except errors
+- `ERROR` - Only errors
+- `WARN` - Warnings and errors  
+- `INFO` - General information (default for local)
+- `DEBUG` - Detailed debugging information
+- `VERBOSE` - Maximum detail including performance metrics
+
+### Environment Variables:
+- `LOG_LEVEL` - Set specific log level (e.g., `LOG_LEVEL=DEBUG`)
+- `CI=true` - Automatically reduces logging to ERROR level
+- `VERBOSE_TEST_LOGS=true` - Legacy support (use LOG_LEVEL=VERBOSE instead)
+
+### CI Optimizations:
+- Uses 1 worker for stability (Playwright best practice)
+- Minimal reporters: only 'dot' and 'github' in CI
+- Quiet mode enabled to reduce output
+- Fail-fast on flaky tests
+- Optimized Docker builds with pre-installed dependencies
+
 ## Development Workflow
 
 1. **Adding New Features**:
@@ -106,6 +148,12 @@ src/
    - Run `yarn ci` to ensure all checks pass
    - Fix any TypeScript, linting, or formatting issues
    - Ensure E2E tests pass if UI was modified
+
+4. **Debugging Test Issues**:
+   - Use `yarn test:e2e:debug` for detailed logging
+   - Use `yarn test:e2e:verbose` for maximum detail
+   - Use `yarn test:e2e:ui` for interactive debugging
+   - Check `test-results/` directory for traces and screenshots
 
 ## Environment Setup
 

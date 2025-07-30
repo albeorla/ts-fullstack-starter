@@ -3,11 +3,7 @@ set -e
 
 echo "Starting in MODE: ${MODE:-production}"
 
-# Install postgresql-client for database checks
 if [ "$MODE" = "test" ]; then
-  echo "Installing postgresql-client for database readiness check..."
-  apt-get update -qq && apt-get install -y -qq postgresql-client > /dev/null 2>&1
-  
   echo "Waiting for database to be ready..."
   until pg_isready -h db -p 5432 -q; do
     echo "Database is not ready yet. Waiting..."
@@ -15,9 +11,15 @@ if [ "$MODE" = "test" ]; then
   done
   echo "Database is ready!"
   
-  echo "Setting up database..."
-  yarn prisma db push --skip-generate
-  yarn prisma db seed
+  # Check if database needs setup (avoid redundant seeding)
+  if ! yarn prisma db seed --dry-run > /dev/null 2>&1; then
+    echo "Setting up database schema..."
+    yarn prisma db push --skip-generate
+    echo "Seeding database..."
+    yarn prisma db seed
+  else
+    echo "Database already configured, skipping setup..."
+  fi
   
   echo "Running E2E tests..."
   exec yarn test:e2e:ci

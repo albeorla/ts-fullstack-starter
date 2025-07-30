@@ -170,7 +170,7 @@ test.describe("User Management - Admin Access", () => {
     await expect(userCard).toBeVisible();
 
     // Verify user information is displayed (email should be visible)
-    const emailElement = userCard.locator('text=/@example\\.com/');
+    const emailElement = userCard.locator("text=/@example\\.com/");
     await expect(emailElement).toBeVisible();
 
     // Verify role badges are present
@@ -318,7 +318,7 @@ test.describe("User Management - UI Interactions", () => {
 
     // Toggle theme - click to open dropdown
     await themeButton.click();
-    
+
     // Click on dark theme option
     await page.getByRole("menuitem", { name: "Dark" }).click();
     await page.waitForTimeout(200);

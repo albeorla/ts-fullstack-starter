@@ -2,6 +2,13 @@ FROM mcr.microsoft.com/playwright:v1.54.1-jammy
 
 WORKDIR /app
 
+# Install system dependencies early for better caching
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 # Copy package files first for better caching
 COPY package*.json ./
 COPY yarn.lock ./
