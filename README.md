@@ -34,6 +34,20 @@ To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the fo
 
 You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
 
+## ⚙️ Local E2E Setup
+
+Prepare the repository for Playwright tests using the provided setup script:
+
+```bash
+# Install browsers, generate Prisma client, and seed the database
+./setup-tests.sh
+
+# Then run the CI mode tests
+yarn test:e2e:ci
+```
+
+This script requires internet access to download Playwright browsers.
+
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.

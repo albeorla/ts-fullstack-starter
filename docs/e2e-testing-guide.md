@@ -16,7 +16,10 @@ Our E2E tests use Playwright with automated authentication. Tests require a runn
 # 1. Start the database (if not running)
 ./start-database.sh
 
-# 2. Run tests
+# 2. Prepare Playwright and database
+./setup-tests.sh
+
+# 3. Run tests
 yarn test:e2e
 ```
 
