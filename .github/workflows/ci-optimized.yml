@@ -336,7 +336,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🐳 Run Docker Compose tests
-        run: docker-compose up --build --exit-code-from e2e e2e
+        run: docker compose up --build --exit-code-from e2e e2e
 
       - name: 📊 Upload coverage to Codecov
         if: always()
@@ -421,7 +421,29 @@ jobs:
         run: yarn install --frozen-lockfile --prefer-offline
 
       - name: 🔒 Audit dependencies
-        run: yarn audit --level high
+        run: |
+          set +e  # Don't exit on error
+          AUDIT_OUTPUT=$(yarn audit --level high 2>&1)
+          AUDIT_EXIT_CODE=$?
+          echo "$AUDIT_OUTPUT"
+          
+          # Only fail if there are actual high/critical vulnerabilities
+          if [[ $AUDIT_EXIT_CODE -eq 2 ]]; then
+            # Check if there are actually high/critical vulnerabilities
+            if echo "$AUDIT_OUTPUT" | grep -E "(high|critical)" > /dev/null; then
+              echo "❌ High or critical vulnerabilities found"
+              exit 1
+            else
+              echo "✅ Only low/moderate vulnerabilities found, continuing..."
+              exit 0
+            fi
+          elif [[ $AUDIT_EXIT_CODE -ne 0 ]]; then
+            echo "❌ Audit failed with unexpected error"
+            exit 1
+          else
+            echo "✅ No vulnerabilities found"
+            exit 0
+          fi
 
       - name: 🔍 Run security scan
         run: |
