@@ -60,3 +60,4 @@ node_modules/.cache
 
 # Claude
 .claude/settings.local.json
+.out/

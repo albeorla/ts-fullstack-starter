@@ -40,7 +40,7 @@ These are already in `.gitignore` but always double-check before committing.
 | `yarn test:e2e` | Run all tests | Standard test run |
 | `yarn test:e2e:headed` | Run tests with browser visible | Debugging |
 | `yarn test:e2e:ui` | Open Playwright UI mode | Interactive debugging |
-| `yarn test:e2e:ci` | Run tests in CI mode | CI/CD pipelines |
+| `yarn test:e2e:ci --max-failures=0 --reporter=console` | Run tests in CI mode | CI/CD pipelines |
 | `yarn test:e2e:debug` | Run with debug logs | Troubleshooting |
 
 ## How It Works
@@ -180,6 +180,12 @@ e2e/
 └── .auth/
     └── user.json          # Saved auth state (gitignored)
 ```
+
+### Playwright Config (from playwright.config.ts)
+- Reporters: html, json
+- Projects: chromium, firefox, webkit
+
+Last Updated: October 2024
 
 ## Environment Variables
 

@@ -6,14 +6,17 @@ Modern full-stack TypeScript application with authentication, RBAC, and a comple
 
 This project uses cutting-edge technologies:
 
-- **Framework**: [Next.js 15](https://nextjs.org) + [React 19](https://react.dev)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-- **Backend**: [tRPC](https://trpc.io) with type-safe APIs
-- **Database**: [PostgreSQL](https://postgresql.org) + [Prisma ORM](https://prisma.io)
-- **Authentication**: [NextAuth.js v5](https://next-auth.js.org) with Discord OAuth
-- **UI Components**: Complete shadcn/ui component suite (25+ components)
-- **Icons**: [Lucide React](https://lucide.dev)
-- **Testing**: [Playwright](https://playwright.dev) for E2E testing
+- **Framework**: Next.js ^15.0.1-canary.0 with React ^19.1.0
+- **Styling**: Tailwind CSS ^4.1.11 + shadcn/ui (complete suite including Button, Card, Table, etc.)
+- **Backend**: tRPC with RBAC routers (user, role, permission)
+- **Database**: PostgreSQL + Prisma ORM ^6.11.1 (with RBAC schema)
+- **Authentication**: NextAuth.js ^5.0.0 with Discord OAuth
+- **Testing**: Playwright ^1.50.0 for E2E (run via `yarn test:e2e:ci --max-failures=0 --reporter=console`)
+
+## ✨ Features
+- Role-Based Access Control (RBAC) with admin panels for users, roles, and permissions
+- Dashboard with responsive UI and theme toggle
+- Profile settings and authentication flows
 
 ## ✨ shadcn/ui Implementation
 
@@ -64,3 +67,8 @@ docker-compose up --build --exit-code-from e2e e2e
 The `docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
 
 Our GitHub Actions workflow uses the same command to run E2E tests in the pipeline.
+
+## ⚙️ CI/CD
+See the optimized workflow in .github/workflows/ci-optimized.yml for change detection, caching, and E2E testing with Docker.
+
+Last Updated: October 2024

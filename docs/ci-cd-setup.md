@@ -31,6 +31,9 @@ This project uses a comprehensive CI/CD pipeline with GitHub Actions that ensure
 
 ## 🔄 Pipeline Workflow
 
+#### File Change Detection
+- Detects changes in source, tests, docs, config, schema, dependencies to run only necessary jobs.
+
 ### 1. **Code Quality & Security** (`quality`)
 ```yaml
 - TypeScript compilation check
@@ -46,14 +49,11 @@ This project uses a comprehensive CI/CD pipeline with GitHub Actions that ensure
 - Integration test coverage
 ```
 
-### 3. **E2E Tests with Coverage** (`e2e`)
+### 5. **E2E Tests with Coverage** (`e2e`)
 ```yaml
-- Full Playwright browser testing
-- 84+ comprehensive test scenarios
-- Authentication flow testing
-- Admin functionality verification
-- UI interaction & responsive design
-- Coverage collection & reporting
+- Uses Docker Compose for consistent testing
+- Caches dependencies, TypeScript, ESLint, Prisma, and Next.js build
+- Runs yarn test:e2e:ci --max-failures=0 --reporter=console
 ```
 
 ### 4. **Security Audit** (`security`)
@@ -110,7 +110,7 @@ This project uses a comprehensive CI/CD pipeline with GitHub Actions that ensure
 ### Running Tests Locally:
 ```bash
 # Run all E2E tests
-yarn test:e2e
+yarn test:e2e:ci --max-failures=0 --reporter=console
 
 # Run with UI (interactive)
 yarn test:e2e:ui
@@ -276,3 +276,5 @@ yarn prisma generate
 - [Development Guide](development-guide.md)
 - [Playwright Documentation](https://playwright.dev/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions) 
+
+Last Updated: October 2024 
