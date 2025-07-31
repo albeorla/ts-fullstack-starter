@@ -552,7 +552,10 @@ test.describe("Role Management", () => {
       await takeScreenshot(page, "role-permissions-display");
     });
 
-    test.skip("permission badges have correct colors", async ({ page, context }) => {
+    test.skip("permission badges have correct colors", async ({
+      page,
+      context,
+    }) => {
       await setupAdminSession(context);
       await navigateToAdmin(page, "roles");
       await verifyLoadingStates(page);
@@ -636,7 +639,10 @@ test.describe("Role Management", () => {
       await takeScreenshot(page, "role-user-relationships");
     });
 
-    test.skip("role cards show accurate user counts", async ({ page, context }) => {
+    test.skip("role cards show accurate user counts", async ({
+      page,
+      context,
+    }) => {
       await setupAdminSession(context);
       await navigateToAdmin(page, "roles");
       await verifyLoadingStates(page);
