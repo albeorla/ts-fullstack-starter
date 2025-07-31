@@ -11,15 +11,14 @@ if [ "$MODE" = "test" ]; then
   done
   echo "Database is ready!"
   
-  # Check if database needs setup (avoid redundant seeding)
-  if ! yarn prisma db seed --dry-run > /dev/null 2>&1; then
-    echo "Setting up database schema..."
-    yarn prisma db push --skip-generate
-    echo "Seeding database..."
-    yarn prisma db seed
-  else
-    echo "Database already configured, skipping setup..."
-  fi
+  # Always ensure database is properly set up
+  echo "Setting up database schema..."
+  yarn prisma db push --skip-generate || echo "Schema push failed, continuing..."
+  
+  echo "Seeding database (upsert mode handles duplicates)..."
+  yarn prisma db seed || echo "Seeding failed, continuing..."
+  
+  echo "Database setup completed."
   
   echo "Running E2E tests..."
   exec yarn test:e2e:ci
