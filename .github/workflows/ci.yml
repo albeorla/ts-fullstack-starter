@@ -1,10 +1,11 @@
 name: CI/CD Pipeline
 
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+# Disabled in favor of ci-optimized.yml - remove this file when confirmed working
+# on:
+#   push:
+#     branches: [ main, develop ]
+#   pull_request:
+#     branches: [ main, develop ]
 
 permissions:
   contents: read
