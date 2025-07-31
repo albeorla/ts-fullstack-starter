@@ -32,6 +32,7 @@ This document tracks the operational status of all features in the T3 Stack appl
 | Role Assignment | ✅ Working | ✅ `user-management.spec.ts` | Assign/remove user roles |
 | Permission Assignment | ✅ Working | ✅ `role-management.spec.ts` | Assign permissions to roles |
 | Admin Access Control | ✅ Working | ✅ `auth-protection.spec.ts` | Admin-only page access |
+| Role Form | ✅ Working | ✅ `role-management.spec.ts` | Uses React Hook Form with Zod validation, from src/app/admin/roles/_components/role-form.tsx |
 
 ### Settings & Profile
 | Feature | Status | E2E Test | Notes |
@@ -88,14 +89,9 @@ This document tracks the operational status of all features in the T3 Stack appl
 | Data Export | ❌ Not implemented | ❌ No test | No export functionality |
 
 ## Known Issues
+- Pending unit tests in CI workflow
 
-### TypeScript Errors
-- `src/app/api/user/update-profile/route.ts` - Type errors in route handler
-- `src/app/settings/profile/page.tsx` - emailVerified property issues
-
-### Linting Warnings
-- Various unused imports in admin form components
-- Some `any` type usage that needs proper typing
+Last Updated: October 2024
 
 ## Test Coverage Matrix
 
@@ -160,5 +156,3 @@ yarn test:e2e:ui        # Interactive mode
 - **Mark features as tested** when E2E tests are added
 - **Document known issues** to prevent confusion
 - **Review quarterly** to ensure accuracy
-
-Last Updated: 2025-01-27

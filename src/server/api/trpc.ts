@@ -144,9 +144,30 @@ export const protectedProcedure = t.procedure
 export const adminProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
+    // Debug logging for E2E tests
+    const isTestMode =
+      process.env.NODE_ENV === "test" ||
+      process.env.ENABLE_TEST_AUTH === "true";
+    if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+      console.log(`🔒 Admin procedure check:`, {
+        hasSession: !!ctx.session,
+        userId: ctx.session?.user?.id,
+        userEmail: ctx.session?.user?.email,
+        roles: ctx.session?.user?.roles,
+      });
+    }
+
     if (!ctx.session?.user.roles?.includes("ADMIN")) {
+      if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+        console.log(`❌ Admin access denied - no ADMIN role found`);
+      }
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
+    if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+      console.log(`✅ Admin access granted`);
+    }
+
     return next({
       ctx: {
         // infers the `session` as non-nullable

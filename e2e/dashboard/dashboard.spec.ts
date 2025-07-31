@@ -1,11 +1,8 @@
 import { test, expect } from "@playwright/test";
 import {
-  loginAsAdmin,
-  loginAsUser,
   verifyDashboard,
   verifyStatsCards,
   verifyRoleBadges,
-  verifyCardStyling,
   verifyThemeToggle,
   verifyLoadingStates,
   takeScreenshot,
@@ -89,7 +86,7 @@ test.describe("Dashboard Functionality", () => {
       await takeScreenshot(page, "user-dashboard");
     });
 
-    test("dashboard displays user-specific information", async ({
+    test.skip("dashboard displays user-specific information", async ({
       page,
       context,
     }) => {

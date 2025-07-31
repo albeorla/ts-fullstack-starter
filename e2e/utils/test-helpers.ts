@@ -10,7 +10,9 @@ import { createTestSession } from "../setup/create-test-session";
  * Wait for page to be fully loaded with network idle
  */
 export async function waitForPageLoad(page: Page) {
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
+  // Wait a bit for React to render
+  await page.waitForTimeout(500);
 }
 
 /**
@@ -24,17 +26,9 @@ export async function setupAdminSession(context: BrowserContext) {
     role: "ADMIN",
   });
 
-  // Set the admin session cookies
+  // Set the session cookie using NextAuth v5 format
+  // For localhost (non-HTTPS), use the standard cookie name
   await context.addCookies([
-    {
-      name: "next-auth.session-token",
-      value: adminSession.sessionToken,
-      domain: "localhost",
-      path: "/",
-      httpOnly: true,
-      sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    },
     {
       name: "authjs.session-token",
       value: adminSession.sessionToken,
@@ -60,17 +54,9 @@ export async function setupUserSession(context: BrowserContext) {
     role: "USER",
   });
 
-  // Set the user session cookies
+  // Set the session cookie using NextAuth v5 format
+  // For localhost (non-HTTPS), use the standard cookie name
   await context.addCookies([
-    {
-      name: "next-auth.session-token",
-      value: userSession.sessionToken,
-      domain: "localhost",
-      path: "/",
-      httpOnly: true,
-      sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    },
     {
       name: "authjs.session-token",
       value: userSession.sessionToken,
@@ -266,14 +252,8 @@ export async function verifyRoleBadges(page: Page, expectedRoles: string[]) {
       .first();
     await expect(badge).toBeVisible();
 
-    // Verify gradient styling based on role
-    if (role === "ADMIN") {
-      await expect(badge).toHaveClass(/from-red-500/);
-    } else if (role === "USER") {
-      await expect(badge).toHaveClass(/from-blue-500/);
-    } else if (role === "TEST") {
-      await expect(badge).toHaveClass(/from-purple-500/);
-    }
+    // Just verify the badge exists and is visible
+    // Gradient classes were removed from the UI
   }
 }
 
@@ -281,7 +261,7 @@ export async function verifyRoleBadges(page: Page, expectedRoles: string[]) {
  * Verify card styling enhancements
  */
 export async function verifyCardStyling(page: Page, cardSelector: string) {
-  const card = page.locator(cardSelector);
+  const card = page.locator(cardSelector).first();
   await expect(card).toBeVisible();
 
   // Check for enhanced card variants
@@ -334,8 +314,8 @@ export async function verifyDialog(
   triggerText: string,
   dialogTitle: string,
 ) {
-  // Click trigger to open dialog
-  await page.getByRole("button", { name: triggerText }).click();
+  // Click trigger to open dialog - use first if multiple exist
+  await page.getByRole("button", { name: triggerText }).first().click();
 
   // Verify dialog is visible
   const dialog = page.getByRole("dialog");
@@ -359,18 +339,29 @@ export async function takeScreenshot(page: Page, name: string) {
  * Verify theme toggle functionality
  */
 export async function verifyThemeToggle(page: Page) {
-  const themeButton = page.getByRole("button", { name: "Toggle theme" });
+  // Theme toggle might be in sidebar or header - try multiple selectors
+  const themeButton = page
+    .locator('button[aria-label="Toggle theme"]')
+    .or(page.getByRole("button", { name: "Toggle theme" }))
+    .first();
   await expect(themeButton).toBeVisible();
 
   // Get current theme
   const html = page.locator("html");
   const currentTheme = await html.getAttribute("class");
 
-  // Click theme toggle
+  // Click theme toggle to open dropdown
   await themeButton.click();
 
+  // Toggle to opposite theme
+  if (currentTheme?.includes("dark")) {
+    await page.getByRole("menuitem", { name: "Light" }).click();
+  } else {
+    await page.getByRole("menuitem", { name: "Dark" }).click();
+  }
+
   // Verify theme changed
-  await page.waitForTimeout(100); // Allow theme transition
+  await page.waitForTimeout(200); // Allow theme transition
   const newTheme = await html.getAttribute("class");
   expect(newTheme).not.toBe(currentTheme);
 

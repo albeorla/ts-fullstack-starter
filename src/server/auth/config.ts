@@ -181,17 +181,28 @@ export const authConfig = {
       return true;
     },
     session: async ({ session, user }) => {
+      // Debug logging for E2E tests
+      if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+        console.log(`🔍 Session callback for user: ${user.id} (${user.email})`);
+      }
+
       const userRoles = await db.userRole.findMany({
         where: { userId: user.id },
         include: { role: true },
       });
+
+      const roles = userRoles.map((ur) => ur.role.name);
+
+      if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+        console.log(`   Roles found: ${roles.join(", ")}`);
+      }
 
       return {
         ...session,
         user: {
           ...session.user,
           id: user.id,
-          roles: userRoles.map((ur) => ur.role.name),
+          roles,
         },
       };
     },

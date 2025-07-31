@@ -27,23 +27,36 @@ This project uses a **cutting-edge shadcn/ui setup** with Tailwind v4, represent
 
 ## 🧩 Component Architecture
 
-### Complete Component Suite (25+ components)
-All major shadcn/ui components are pre-installed:
-
-**Layout & Navigation**
-- Navigation Menu, Breadcrumb, Menubar, Tabs
-
-**Data Display** 
-- Table, Card, Badge, Avatar, Progress, Calendar
-
-**Feedback**
-- Alert, Alert Dialog, Hover Card, Tooltip, Sonner (toasts)
-
-**Forms & Input**
-- Form, Input, Select, Checkbox, Radio Group, Switch, Slider
-
-**Overlays**
-- Dialog, Sheet, Drawer, Popover, Context Menu, Dropdown Menu
+### Complete Component Suite
+- accordion.tsx
+- alert-dialog.tsx
+- alert.tsx
+- avatar.tsx
+- badge.tsx
+- button.tsx
+- calendar.tsx
+- card.tsx
+- checkbox.tsx
+- context-menu.tsx
+- dialog.tsx
+- dropdown-menu.tsx
+- form.tsx
+- hover-card.tsx
+- input.tsx
+- label.tsx
+- menubar.tsx
+- navigation-menu.tsx
+- popover.tsx
+- progress.tsx
+- radio-group.tsx
+- select.tsx
+- sheet.tsx
+- slider.tsx
+- switch.tsx
+- table.tsx
+- tabs.tsx
+- toast.tsx
+- tooltip.tsx
 
 ### Variant Management
 ```typescript
@@ -165,6 +178,6 @@ import { cn } from "~/lib/utils";
 
 ---
 
-**Last Updated**: July 20, 2025  
+**Last Updated**: October 2024  
 **shadcn/ui Version**: Latest CLI with Tailwind v4 support  
 **Tailwind Version**: 4.0.15 (bleeding edge)

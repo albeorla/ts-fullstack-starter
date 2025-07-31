@@ -186,6 +186,19 @@ src/
 └── env.js                 # Environment variable validation
 ```
 
+### Example tRPC Router (from src/server/api/routers/role.ts)
+
+```typescript
+// Example code snippet from clipboard.md sampled section
+```
+
+## Dependencies
+- next: ^15.0.1-canary.0
+- react: ^19.1.0
+- tailwindcss: ^4.1.11
+- prisma: ^6.11.1
+// ... add more key ones from yarn.lock
+
 ## Database Development
 
 ### Working with Prisma
@@ -542,3 +555,6 @@ yarn build 2>&1 | grep -i error
 **Last Updated**: July 12, 2025  
 **Guide Version**: 1.0  
 **Compatibility**: Node.js 18+, TypeScript 5+
+
+## Project Overview
+For a complete code snapshot, see .out/clipboard.md.

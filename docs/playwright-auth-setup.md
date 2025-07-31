@@ -25,14 +25,14 @@ yarn test:e2e:headed
 yarn test:e2e:ui
 
 # Run tests in CI mode (same as regular, explicit for CI)
-yarn test:e2e:ci
+yarn test:e2e:ci --max-failures=0 --reporter=console
 ```
 
 All commands work identically - there's no manual login required.
 
 ## Authentication Flow
 
-1. Before tests run, the `auth.setup.ts` file executes
+1. auth.setup.ts executes before tests
 2. It creates a test user in the database (or uses existing)
 3. It creates a valid session token
 4. The session is set as cookies in the browser
@@ -104,3 +104,5 @@ The authentication system uses:
 - **Cookie-based sessions** compatible with server-side auth
 
 No OAuth providers, no manual logins, no external dependencies - just fast, reliable test authentication. 
+
+Last Updated: October 2024 
