@@ -222,11 +222,26 @@ export default function PermissionsPage() {
                       </h4>
                       {permission.roles.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
-                          {permission.roles.map((rp) => (
-                            <Badge key={rp.role.id} variant="secondary">
-                              {rp.role.name}
-                            </Badge>
-                          ))}
+                          {permission.roles.map((rp) => {
+                            const getBadgeVariant = (roleName: string) => {
+                              switch (roleName.toLowerCase()) {
+                                case "admin":
+                                  return "admin" as const;
+                                case "user":
+                                  return "user" as const;
+                                case "test":
+                                  return "test" as const;
+                                default:
+                                  return "secondary" as const;
+                              }
+                            };
+                            
+                            return (
+                              <Badge key={rp.role.id} variant={getBadgeVariant(rp.role.name)}>
+                                {rp.role.name}
+                              </Badge>
+                            );
+                          })}
                         </div>
                       ) : (
                         <p className="text-muted-foreground text-sm">

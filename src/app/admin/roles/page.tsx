@@ -242,7 +242,7 @@ export default function RolesPage() {
                       {role.permissions.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {role.permissions.map((rp) => (
-                            <Badge key={rp.permission.id} variant="secondary">
+                            <Badge key={rp.permission.id} variant="permission">
                               {rp.permission.name}
                             </Badge>
                           ))}
