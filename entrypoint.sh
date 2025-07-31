@@ -5,7 +5,13 @@ echo "Starting in MODE: ${MODE:-production}"
 
 if [ "$MODE" = "test" ]; then
   echo "Waiting for database to be ready..."
-  until pg_isready -h db -p 5432 -q; do
+  # Extract host from DATABASE_URL or default to localhost for GitHub Actions
+  DB_HOST=${DATABASE_URL#*@}  # Remove everything before @
+  DB_HOST=${DB_HOST%%:*}      # Remove everything after first :
+  DB_HOST=${DB_HOST:-localhost}  # Default to localhost if empty
+  
+  echo "Checking database connection to: $DB_HOST"
+  until pg_isready -h "$DB_HOST" -p 5432 -q; do
     echo "Database is not ready yet. Waiting..."
     sleep 2
   done
