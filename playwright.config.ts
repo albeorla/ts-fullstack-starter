@@ -11,7 +11,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 1 : undefined, // Sequential execution in CI for stability
+  workers: isCI ? 4 : undefined, // Use 4 parallel workers in CI for speed
   quiet: !!process.env.CI, // Reduce output verbosity in CI
   failOnFlakyTests: !!process.env.CI, // Fail CI on flaky tests
   globalTimeout: isCI ? 60 * 60 * 1000 : undefined, // 1 hour timeout for CI
@@ -63,9 +63,9 @@ export default defineConfig({
       PORT: "3001",
       NODE_ENV: "test",
       ENABLE_TEST_AUTH: "true",
-      AUTH_SECRET: process.env.AUTH_SECRET || randomBytes(32).toString("hex"),
+      AUTH_SECRET: process.env.AUTH_SECRET ?? randomBytes(32).toString("hex"),
       DATABASE_URL:
-        process.env.DATABASE_URL ||
+        process.env.DATABASE_URL ??
         "postgresql://postgres:password@localhost:5432/albeorla-ts-starter",
     },
   },
