@@ -41,7 +41,13 @@ if [ "$MODE" = "test" ]; then
   echo "Database setup completed and verified."
   
   echo "Running E2E tests..."
-  exec yarn test:e2e:ci
+  if [ -n "$PLAYWRIGHT_SHARD" ]; then
+    echo "Running E2E tests with sharding: $PLAYWRIGHT_SHARD"
+    exec CI=true dotenv -e .env.test -- playwright test --reporter=dot --max-failures=1 --shard="$PLAYWRIGHT_SHARD"
+  else
+    echo "Running E2E tests without sharding"
+    exec yarn test:e2e:ci
+  fi
 else
   echo "Starting Next.js in production mode..."
   exec yarn start

@@ -21,6 +21,7 @@ export default defineConfig({
     ? [
         ["dot"], // Concise output for CI
         ["github"], // GitHub annotations
+        ...(process.env.PLAYWRIGHT_SHARD ? [["blob"]] : []), // Add blob reporter for sharding
       ]
     : [
         ["list"],
