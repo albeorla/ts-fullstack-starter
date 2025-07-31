@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
   AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'test-secret-for-ci' }}
   NEXTAUTH_URL: http://localhost:3000
