@@ -77,7 +77,7 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
     // For NextAuth v5, we need to create a proper session that NextAuth can validate
     // Instead of manually creating a session, we'll create the necessary records
     // that NextAuth expects when it validates the session
-    
+
     // Create a session token using NextAuth's expected format
     const sessionToken = randomBytes(32).toString("hex");
     const expires = new Date();

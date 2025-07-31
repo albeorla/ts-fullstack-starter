@@ -192,7 +192,7 @@ export const authConfig = {
       });
 
       const roles = userRoles.map((ur) => ur.role.name);
-      
+
       if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
         console.log(`   Roles found: ${roles.join(", ")}`);
       }
