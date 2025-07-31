@@ -26,17 +26,9 @@ export async function setupAdminSession(context: BrowserContext) {
     role: "ADMIN",
   });
 
-  // Set the admin session cookies
+  // Set the session cookie using NextAuth v5 format
+  // For localhost (non-HTTPS), use the standard cookie name
   await context.addCookies([
-    {
-      name: "next-auth.session-token",
-      value: adminSession.sessionToken,
-      domain: "localhost",
-      path: "/",
-      httpOnly: true,
-      sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    },
     {
       name: "authjs.session-token",
       value: adminSession.sessionToken,
@@ -62,17 +54,9 @@ export async function setupUserSession(context: BrowserContext) {
     role: "USER",
   });
 
-  // Set the user session cookies
+  // Set the session cookie using NextAuth v5 format
+  // For localhost (non-HTTPS), use the standard cookie name
   await context.addCookies([
-    {
-      name: "next-auth.session-token",
-      value: userSession.sessionToken,
-      domain: "localhost",
-      path: "/",
-      httpOnly: true,
-      sameSite: "Lax",
-      expires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    },
     {
       name: "authjs.session-token",
       value: userSession.sessionToken,

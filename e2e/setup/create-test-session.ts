@@ -25,7 +25,7 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
   }
 
   try {
-    // Create or update test user
+    // Create or update test user (this ensures the user exists for NextAuth)
     const testUser = await prisma.user.upsert({
       where: { email },
       update: {
@@ -74,12 +74,16 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
       console.warn(`Warning: ${role} role not found in database`);
     }
 
-    // Create a session token
+    // For NextAuth v5, we need to create a proper session that NextAuth can validate
+    // Instead of manually creating a session, we'll create the necessary records
+    // that NextAuth expects when it validates the session
+    
+    // Create a session token using NextAuth's expected format
     const sessionToken = randomBytes(32).toString("hex");
     const expires = new Date();
     expires.setDate(expires.getDate() + 30); // 30 days from now
 
-    // Create session
+    // Create session record that NextAuth expects
     const session = await prisma.session.upsert({
       where: { sessionToken },
       update: {
@@ -93,8 +97,27 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
       },
     });
 
+    // Create an account record if it doesn't exist (NextAuth may need this)
+    await prisma.account.upsert({
+      where: {
+        provider_providerAccountId: {
+          provider: "test-credentials",
+          providerAccountId: testUser.id,
+        },
+      },
+      update: {},
+      create: {
+        userId: testUser.id,
+        type: "credentials",
+        provider: "test-credentials",
+        providerAccountId: testUser.id,
+      },
+    });
+
     if (isVerbose) {
       console.log(`✅ Test session created for ${email} (${role})`);
+      console.log(`   User ID: ${testUser.id}`);
+      console.log(`   Session Token: ${sessionToken.substring(0, 8)}...`);
     }
 
     // Return the session details
