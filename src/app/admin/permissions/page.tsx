@@ -235,9 +235,12 @@ export default function PermissionsPage() {
                                   return "secondary" as const;
                               }
                             };
-                            
+
                             return (
-                              <Badge key={rp.role.id} variant={getBadgeVariant(rp.role.name)}>
+                              <Badge
+                                key={rp.role.id}
+                                variant={getBadgeVariant(rp.role.name)}
+                              >
                                 {rp.role.name}
                               </Badge>
                             );
