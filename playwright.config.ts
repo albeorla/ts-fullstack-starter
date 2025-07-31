@@ -18,12 +18,11 @@ export default defineConfig({
 
   // Optimized reporting: minimal in CI, detailed locally
   reporter: isCI
-    ? (
-        [
-          ["dot"], // Concise output for CI
-          ["github"], // GitHub annotations
-        ] as const
-      ).concat(process.env.PLAYWRIGHT_SHARD ? [["blob"]] : [])
+    ? [
+        ["dot"], // Concise output for CI
+        ["github"], // GitHub annotations
+        ...(process.env.PLAYWRIGHT_SHARD ? [["blob"] as const] : []),
+      ]
     : [
         ["list"],
         ["html", { open: "on-failure", outputFolder: "playwright-report" }],
