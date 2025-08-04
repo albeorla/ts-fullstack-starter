@@ -19,7 +19,7 @@ export const auth = {
     id: env.AUTH_DISCORD_ID,
     secret: env.AUTH_DISCORD_SECRET,
   },
-  enableTestAuth: process.env.ENABLE_TEST_AUTH === "true",
+  enableTestAuth: env.ENABLE_TEST_AUTH === "true",
 };
 
 export const database = {
