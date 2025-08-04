@@ -6,7 +6,11 @@ import { env } from "~/env";
 
 export const app = {
   nodeEnv: env.NODE_ENV,
-  port: Number(process.env.PORT ?? 3000),
+  port: (() => {
+    const portStr = process.env.PORT;
+    const port = parseInt(portStr ?? "", 10);
+    return Number.isFinite(port) && port > 0 ? port : 3000;
+  })(),
 };
 
 export const auth = {
