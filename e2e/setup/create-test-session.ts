@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access */
 import { PrismaClient } from "@prisma/client";
 import { randomBytes } from "crypto";
+
+import config from "~/config";
 
 const prisma = new PrismaClient();
 
 // Control logging verbosity via environment variable
-const isVerbose = process.env.VERBOSE_TEST_LOGS === "true";
+const isVerbose = config.test.verboseLogs;
 
 interface CreateTestSessionOptions {
   email?: string;
@@ -84,7 +87,7 @@ async function createTestSession(options: CreateTestSessionOptions = {}) {
     expires.setDate(expires.getDate() + 30); // 30 days from now
 
     // Create session record that NextAuth expects
-    const session = await prisma.session.upsert({
+    await prisma.session.upsert({
       where: { sessionToken },
       update: {
         userId: testUser.id,

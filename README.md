@@ -60,10 +60,10 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 ### Development with Docker
 ```bash
 # Run development environment with hot reload
-docker-compose -f docker-compose.dev.yml up
+docker compose up
 
 # Run in detached mode
-docker-compose -f docker-compose.dev.yml up -d
+docker compose up -d
 ```
 
 ### E2E Testing with Docker
@@ -73,8 +73,8 @@ Run the Playwright test suite inside Docker with a bundled PostgreSQL database:
 # Run E2E tests in Docker (uses .env.test)
 yarn test:e2e:docker
 
-# Or manually with docker-compose
-docker-compose up --build --exit-code-from e2e e2e
+# Or manually with docker compose
+docker compose up --build --exit-code-from e2e e2e
 
 # View test results
 ls -la playwright-report/
