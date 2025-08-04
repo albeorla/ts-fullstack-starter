@@ -24,7 +24,7 @@ async function checkDatabase(maxRetries = 5, delay = 2000) {
 
       await prisma.$disconnect();
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.warn(
         `❌ Database connection attempt ${attempt}/${maxRetries} failed`,
       );
@@ -32,10 +32,13 @@ async function checkDatabase(maxRetries = 5, delay = 2000) {
       if (attempt === maxRetries) {
         logger.error("❌ Database connection failed after all retries!");
 
-        if (error.message?.includes("Can't reach database server")) {
+        if (
+          error instanceof Error &&
+          error.message?.includes("Can't reach database server")
+        ) {
           logger.error("The database server is not running.");
           logger.error("To start the database, run one of these commands:");
-          logger.error("  1. Using Docker: ./start-database.sh");
+          logger.error("  1. Using Docker: ./scripts/start-database.sh");
           logger.error(
             "  2. Using local PostgreSQL: ensure it's running on port 5432",
           );
@@ -43,7 +46,10 @@ async function checkDatabase(maxRetries = 5, delay = 2000) {
             "For CI environments, ensure DATABASE_URL is properly configured.",
           );
         } else {
-          logger.error("Error details:", error.message);
+          logger.error(
+            "Error details:",
+            error instanceof Error ? error.message : String(error),
+          );
         }
 
         await prisma.$disconnect();

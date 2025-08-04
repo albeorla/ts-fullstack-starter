@@ -77,19 +77,36 @@ docker compose up  # Development with hot reload
 
 ### Directory Structure
 ```
-src/
-├── app/                    # Next.js App Router pages and layouts
-│   ├── _components/        # Page-specific components
-│   ├── admin/              # Admin dashboard with RBAC management
-│   ├── api/                # API routes (auth, tRPC)
-│   └── auth/               # Authentication pages
-├── components/ui/          # shadcn/ui components (25+ components)
-├── server/                 # Backend logic
-│   ├── api/                # tRPC routers and procedures
-│   │   └── routers/        # Feature-specific routers (user, role, permission)
-│   ├── auth/               # NextAuth.js configuration
-│   └── db.ts               # Prisma database client
-└── trpc/                   # tRPC client configuration
+├── build-artifacts/        # Organized build outputs and logs
+│   ├── coverage/           # Test coverage reports
+│   ├── logs/               # CI/CD and validation logs
+│   └── reports/            # Test and build reports
+├── docker/                 # Docker configuration files
+│   ├── Dockerfile          # Application container definition
+│   ├── docker-compose.yml  # Local development setup
+│   ├── docker-compose.ci.yml # CI environment configuration
+│   └── *.yml               # Additional compose configurations
+├── docs/                   # Project documentation
+├── e2e/                    # End-to-end test files
+├── scripts/                # Build and automation scripts
+│   ├── setup-tests.sh      # Test environment setup
+│   ├── start-database.sh   # Database startup script
+│   └── *.sh                # CI/CD and validation scripts
+├── src/                    # Application source code
+│   ├── app/                # Next.js App Router pages and layouts
+│   │   ├── _components/    # Page-specific components
+│   │   ├── admin/          # Admin dashboard with RBAC management
+│   │   ├── api/            # API routes (auth, tRPC)
+│   │   └── auth/           # Authentication pages
+│   ├── components/ui/      # shadcn/ui components (25+ components)
+│   ├── config/             # Centralized application configuration
+│   ├── server/             # Backend logic
+│   │   ├── api/            # tRPC routers and procedures
+│   │   │   └── routers/    # Feature-specific routers (user, role, permission)
+│   │   ├── auth/           # NextAuth.js configuration
+│   │   └── db.ts           # Prisma database client
+│   └── trpc/               # tRPC client configuration
+└── prisma/                 # Database schema and migrations
 ```
 
 ### Key Architectural Patterns
@@ -140,6 +157,35 @@ The project follows a strategic approach to configuration management:
 - Special npm variables (npm_package_version)
 - Node.js environment checking (NODE_ENV)
 - Test framework variables (PLAYWRIGHT_SHARD)
+
+## Project Organization Strategy
+
+The project follows a clean directory structure with organized separation of concerns:
+
+### Core Directories:
+- **`src/`**: All application source code with clear domain separation
+- **`scripts/`**: All automation, build, and utility scripts in one location
+- **`docker/`**: All Docker-related configuration files consolidated
+- **`docs/`**: Comprehensive project documentation
+- **`e2e/`**: End-to-end testing with Playwright
+
+### Build Artifacts Organization:
+- **`build-artifacts/logs/`**: CI logs, validation reports, and build logs
+- **`build-artifacts/reports/`**: Test reports, integration results, and analysis
+- **`build-artifacts/coverage/`**: Code coverage reports and metrics
+- **`playwright-report/`** & **`test-results/`**: Kept in root for easy access during development
+
+### Script Organization:
+- **Setup Scripts**: `scripts/setup-tests.sh`, `scripts/start-database.sh`
+- **CI/CD Scripts**: `scripts/ci-*.sh` for various CI operations
+- **Validation Scripts**: `scripts/*-validate.sh` for different validation tasks
+- **Integration Scripts**: Comprehensive testing and integration workflows
+
+### Docker Organization:
+- **Main Dockerfile**: `docker/Dockerfile` for application builds
+- **Development**: `docker/docker-compose.yml` for local development
+- **CI Environment**: `docker/docker-compose.ci.yml` mirrors GitHub Actions
+- **Test Matrix**: `docker/docker-compose.test-matrix.yml` for comprehensive testing
 
 ## Test Logging System
 

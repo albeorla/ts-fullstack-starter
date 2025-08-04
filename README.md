@@ -43,7 +43,7 @@ Prepare the repository for Playwright tests using the provided setup script:
 
 ```bash
 # Install browsers, generate Prisma client, and seed the database
-./setup-tests.sh
+./scripts/setup-tests.sh
 
 # Then run the CI mode tests
 yarn test:e2e:ci
@@ -81,21 +81,21 @@ ls -la playwright-report/
 ls -la test-results/
 ```
 
-The `docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
+The `docker/docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
 
 ### Docker Commands
 ```bash
 # Stop all containers
-docker-compose down
+docker-compose -f docker/docker-compose.yml down
 
 # Remove volumes (clean database)
-docker-compose down -v
+docker-compose -f docker/docker-compose.yml down -v
 
 # View logs
-docker-compose logs -f [service_name]
+docker-compose -f docker/docker-compose.yml logs -f [service_name]
 
 # Build without cache
-docker-compose build --no-cache
+docker-compose -f docker/docker-compose.yml build --no-cache
 ```
 
 Our GitHub Actions workflow uses the same command to run E2E tests in the pipeline.

@@ -355,7 +355,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           tags: e2e-test:latest
           load: true
           cache-from: type=gha

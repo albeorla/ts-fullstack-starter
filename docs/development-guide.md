@@ -86,7 +86,7 @@ yarn db:generate
 
 ```bash
 # Start database container
-./start-database.sh
+./scripts/start-database.sh
 
 # Or manually with docker
 docker run --name postgres-dev \

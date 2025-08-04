@@ -309,30 +309,30 @@ validate_docker() {
     cd "$PROJECT_ROOT"
     
     # 17. Dockerfile syntax
-    if [[ -f "Dockerfile" ]]; then
+    if [[ -f "docker/Dockerfile" ]]; then
         run_check "Dockerfile syntax" \
-            "docker build --dry-run -f Dockerfile ." \
+            "docker build --dry-run -f docker/Dockerfile ." \
             "echo 'Dockerfile issues require manual fix'"
     fi
     
     # 18. Docker Compose validation
-    if [[ -f "docker-compose.yml" ]]; then
+    if [[ -f "docker/docker-compose.yml" ]]; then
         run_check "Docker Compose config" \
-            "docker-compose config -q" \
+            "docker-compose -f docker/docker-compose.yml config -q" \
             "echo 'Docker Compose issues require manual fix'"
     fi
     
     # 19. Docker Compose CI validation
-    if [[ -f "docker-compose.ci.yml" ]]; then
+    if [[ -f "docker/docker-compose.ci.yml" ]]; then
         run_check "Docker Compose CI config" \
-            "docker-compose -f docker-compose.ci.yml config -q" \
+            "docker-compose -f docker/docker-compose.ci.yml config -q" \
             "echo 'Docker Compose CI issues require manual fix'"
     fi
     
     # 20. Test Matrix validation
-    if [[ -f "docker-compose.test-matrix.yml" ]]; then
+    if [[ -f "docker/docker-compose.test-matrix.yml" ]]; then
         run_check "Docker Compose test matrix config" \
-            "docker-compose -f docker-compose.test-matrix.yml config -q" \
+            "docker-compose -f docker/docker-compose.test-matrix.yml config -q" \
             "echo 'Docker Compose test matrix issues require manual fix'"
     fi
 }

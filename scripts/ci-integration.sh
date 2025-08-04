@@ -266,9 +266,9 @@ test_docker_integration() {
     local docker_tests=()
     
     # Test Docker Compose configurations
-    run_test "Docker Compose validation" "docker compose -f docker-compose.yml config -q"
-    run_test "Docker Compose CI validation" "docker compose -f docker-compose.ci.yml config -q"
-    run_test "Docker Compose test matrix validation" "docker compose -f docker-compose.test-matrix.yml config -q"
+    run_test "Docker Compose validation" "docker compose -f docker/docker-compose.yml config -q"
+    run_test "Docker Compose CI validation" "docker compose -f docker/docker-compose.ci.yml config -q"
+    run_test "Docker Compose test matrix validation" "docker compose -f docker/docker-compose.test-matrix.yml config -q"
     
     # Test our Docker scripts
     run_test "CI local script help" "$SCRIPT_DIR/ci-local.sh --help"

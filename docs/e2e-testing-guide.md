@@ -14,10 +14,10 @@ Our E2E tests use Playwright with automated authentication. Tests require a runn
 
 ```bash
 # 1. Start the database (if not running)
-./start-database.sh
+./scripts/start-database.sh
 
 # 2. Prepare Playwright and database
-./setup-tests.sh
+./scripts/setup-tests.sh
 
 # 3. Run tests
 yarn test:e2e
@@ -61,7 +61,7 @@ These are already in `.gitignore` but always double-check before committing.
 **Solution**:
 ```bash
 # Start database with Docker
-./start-database.sh
+./scripts/start-database.sh
 
 # Or check if PostgreSQL is running
 pg_isready -h localhost -p 5432
