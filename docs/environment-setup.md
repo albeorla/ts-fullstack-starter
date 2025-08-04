@@ -1,6 +1,6 @@
 # Environment Variables Setup Guide
 
-This guide explains how to properly configure environment variables for different contexts in the albeorla-ts-starter project.
+This guide explains how to properly configure environment variables for different contexts in the albeorla-ts-starter project. Environment variables are loaded using [`dotenv-flow`](https://github.com/kerimdzhanov/dotenv-flow), which automatically merges layered `.env` files based on the current environment.
 
 ## Overview
 
@@ -72,12 +72,12 @@ SKIP_ENV_VALIDATION="true"
 
 ## Environment Variable Load Order
 
-Next.js loads environment variables in this order (first match wins):
-1. `process.env` (system environment)
-2. `.env.$(NODE_ENV).local` (e.g., `.env.test.local`)
-3. `.env.local` (not loaded when `NODE_ENV=test`)
-4. `.env.$(NODE_ENV)` (e.g., `.env.test`)
-5. `.env`
+`dotenv-flow` resolves environment variables from multiple files automatically. Highest priority files override lower ones:
+1. `.env.$(NODE_ENV).local` (e.g., `.env.test.local`)
+2. `.env.local` (skipped when `NODE_ENV=test`)
+3. `.env.$(NODE_ENV)` (e.g., `.env.test`)
+4. `.env`
+5. System environment variables
 
 ## Setup Instructions
 

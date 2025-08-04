@@ -61,8 +61,8 @@ yarn preview          # Build and start production server
 ### Docker Commands
 ```bash
 yarn test:e2e:docker  # Run E2E tests in Docker with PostgreSQL
-docker-compose up --build --exit-code-from e2e e2e  # Manual Docker test run
-docker-compose -f docker-compose.dev.yml up  # Development with hot reload
+docker compose up --build --exit-code-from e2e e2e  # Manual Docker test run
+docker compose up  # Development with hot reload
 ```
 
 ## High-Level Architecture

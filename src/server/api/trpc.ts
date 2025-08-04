@@ -11,6 +11,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import config from "~/config";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
@@ -146,9 +147,8 @@ export const adminProcedure = t.procedure
   .use(({ ctx, next }) => {
     // Debug logging for E2E tests
     const isTestMode =
-      process.env.NODE_ENV === "test" ||
-      process.env.ENABLE_TEST_AUTH === "true";
-    if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+      config.app.nodeEnv === "test" || config.auth.enableTestAuth;
+    if (isTestMode && config.test.verboseLogs) {
       console.log(`🔒 Admin procedure check:`, {
         hasSession: !!ctx.session,
         userId: ctx.session?.user?.id,
@@ -158,13 +158,13 @@ export const adminProcedure = t.procedure
     }
 
     if (!ctx.session?.user.roles?.includes("ADMIN")) {
-      if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+      if (isTestMode && config.test.verboseLogs) {
         console.log(`❌ Admin access denied - no ADMIN role found`);
       }
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
-    if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+    if (isTestMode && config.test.verboseLogs) {
       console.log(`✅ Admin access granted`);
     }
 

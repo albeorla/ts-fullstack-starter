@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import config from "~/config";
+
 export async function GET() {
   try {
     // Basic health check - can be extended with database connectivity check
@@ -7,7 +9,7 @@ export async function GET() {
       status: "healthy",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV ?? "development",
+      environment: config.app.nodeEnv,
       version: process.env.npm_package_version ?? "unknown",
     };
 

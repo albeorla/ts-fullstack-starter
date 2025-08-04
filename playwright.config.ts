@@ -1,10 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 import { randomBytes } from "crypto";
 
+import config from "./src/config";
+
 const authFile = "e2e/.auth/user.json";
 
 // Determine if we're in CI or local environment
-const isCI = !!process.env.CI;
+const isCI = config.ci.isCI;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -12,8 +14,8 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: isCI ? 4 : undefined, // Use 4 parallel workers in CI for speed
-  quiet: !!process.env.CI, // Reduce output verbosity in CI
-  failOnFlakyTests: !!process.env.CI, // Fail CI on flaky tests
+  quiet: isCI, // Reduce output verbosity in CI
+  failOnFlakyTests: isCI, // Fail CI on flaky tests
   globalTimeout: isCI ? 60 * 60 * 1000 : undefined, // 1 hour timeout for CI
 
   // Optimized reporting: minimal in CI, detailed locally
@@ -64,9 +66,9 @@ export default defineConfig({
       PORT: "3001",
       NODE_ENV: "test",
       ENABLE_TEST_AUTH: "true",
-      AUTH_SECRET: process.env.AUTH_SECRET ?? randomBytes(32).toString("hex"),
+      AUTH_SECRET: config.auth.secret ?? randomBytes(32).toString("hex"),
       DATABASE_URL:
-        process.env.DATABASE_URL ??
+        config.database.url ??
         "postgresql://postgres:password@localhost:5432/albeorla-ts-starter",
     },
   },

@@ -3,6 +3,7 @@ import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+import config from "~/config";
 import { db } from "~/server/db";
 
 /**
@@ -29,8 +30,7 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
-const isTestMode =
-  process.env.NODE_ENV === "test" || process.env.ENABLE_TEST_AUTH === "true";
+const isTestMode = config.app.nodeEnv === "test" || config.auth.enableTestAuth;
 
 export const authConfig = {
   providers: [
@@ -182,7 +182,7 @@ export const authConfig = {
     },
     session: async ({ session, user }) => {
       // Debug logging for E2E tests
-      if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+      if (isTestMode && config.test.verboseLogs) {
         console.log(`🔍 Session callback for user: ${user.id} (${user.email})`);
       }
 
@@ -193,7 +193,7 @@ export const authConfig = {
 
       const roles = userRoles.map((ur) => ur.role.name);
 
-      if (isTestMode && process.env.VERBOSE_TEST_LOGS === "true") {
+      if (isTestMode && config.test.verboseLogs) {
         console.log(`   Roles found: ${roles.join(", ")}`);
       }
 

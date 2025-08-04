@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-argument,@typescript-eslint/unbound-method */
+import config from "~/config";
+
 export enum LogLevel {
   SILENT = 0,
   ERROR = 1,
@@ -11,13 +14,14 @@ class TestLogger {
   private level: LogLevel;
 
   constructor() {
-    // Determine log level from environment
-    const envLevel = process.env.LOG_LEVEL?.toUpperCase();
-    const isCI = !!process.env.CI;
-    const isVerbose = process.env.VERBOSE_TEST_LOGS === "true";
+    // Determine log level from configuration
+    const envLevel = config.test.logLevel;
+    const levelFromEnv = LogLevel[envLevel as keyof typeof LogLevel];
+    const isCI = config.ci.isCI;
+    const isVerbose = config.test.verboseLogs;
 
-    if (envLevel) {
-      this.level = LogLevel[envLevel as keyof typeof LogLevel] || LogLevel.INFO;
+    if (levelFromEnv !== undefined) {
+      this.level = levelFromEnv;
     } else if (isCI) {
       // In CI, be quiet by default unless verbose is explicitly requested
       this.level = isVerbose ? LogLevel.INFO : LogLevel.ERROR;
@@ -97,7 +101,7 @@ class TestLogger {
     }
   }
 
-  dbOperation(operation: string, success: boolean = true): void {
+  dbOperation(operation: string, success = true): void {
     if (success) {
       this.debug(`✅ Database: ${operation}`);
     } else {
