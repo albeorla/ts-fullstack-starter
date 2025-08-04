@@ -1,14 +1,15 @@
 import { test as setup } from "@playwright/test";
-import { createTestSession } from "./setup/create-test-session";
+import { sessionPool } from "./utils/session-pool";
 import { checkDatabase } from "./setup/check-database";
+import { logger } from "./utils/logger";
 
 const authFile = "e2e/.auth/user.json";
 
 setup("authenticate", async ({ page, context }) => {
-  console.log("Starting automated authentication setup...");
+  logger.info("Starting automated authentication setup...");
 
   // Check database connection first
-  console.log("Checking database connection...");
+  logger.debug("Checking database connection...");
   const dbReady = await checkDatabase();
 
   if (!dbReady) {
@@ -18,9 +19,9 @@ setup("authenticate", async ({ page, context }) => {
   }
 
   try {
-    // Create test session directly - no manual intervention
-    console.log("Creating test session in database...");
-    const sessionData = await createTestSession();
+    // Use session pool for better performance and reduced logging
+    logger.authOperation("Setting up authentication with session pool");
+    const sessionData = await sessionPool.getSession("USER");
 
     // Set the session cookie
     await context.addCookies([
@@ -65,18 +66,18 @@ setup("authenticate", async ({ page, context }) => {
 
     if (!isGreetingVisible && !isAccountStatusVisible) {
       // Debug information
-      console.log("Page URL:", page.url());
-      console.log("Auth verification failed. Debug info:");
-      console.log("- Session token created:", sessionData.sessionToken);
-      console.log("- User email:", sessionData.userEmail);
+      logger.debug("Page URL:", page.url());
+      logger.error("Auth verification failed. Debug info:");
+      logger.debug("- Session token created:", sessionData.sessionToken);
+      logger.debug("- User email:", sessionData.userEmail);
 
       // Check page title and heading
       const pageTitle = await page.title();
       const headingText = await dashboardHeading
         .textContent()
         .catch(() => null);
-      console.log("- Page title:", pageTitle);
-      console.log("- Page heading:", headingText);
+      logger.debug("- Page title:", pageTitle);
+      logger.debug("- Page heading:", headingText);
 
       // Check if there's an error on the page
       const errorText = await page
@@ -84,7 +85,7 @@ setup("authenticate", async ({ page, context }) => {
         .textContent()
         .catch(() => null);
       if (errorText) {
-        console.log("- Error on page:", errorText);
+        logger.error("- Error on page:", errorText);
       }
 
       throw new Error(
@@ -92,14 +93,14 @@ setup("authenticate", async ({ page, context }) => {
       );
     }
 
-    console.log("✅ Authentication successful!");
-    console.log("✅ User:", sessionData.userEmail);
+    logger.info("✅ Authentication successful!");
+    logger.info("✅ User:", sessionData.userEmail);
 
     // Save authentication state
     await context.storageState({ path: authFile });
-    console.log("✅ Authentication state saved for reuse in tests");
+    logger.info("✅ Authentication state saved for reuse in tests");
   } catch (error) {
-    console.error("❌ Authentication setup failed:", error);
+    logger.error("❌ Authentication setup failed:", error);
     throw error;
   }
 });

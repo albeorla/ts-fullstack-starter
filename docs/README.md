@@ -60,3 +60,8 @@ This documentation is maintained alongside the codebase. When making changes:
 **Last Updated**: July 12, 2025  
 **Documentation Version**: 1.0  
 **Application Version**: 0.1.0
+
+## 📚 Additional Resources
+- Full project snapshot: .out/clipboard.md
+
+Last Updated: October 2024
