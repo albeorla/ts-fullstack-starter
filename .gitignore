@@ -7,7 +7,6 @@
 
 # testing
 /coverage
-/build-artifacts
 
 # playwright
 /e2e/.auth
@@ -15,7 +14,6 @@
 /test-results
 
 # build artifacts and logs
-/build-artifacts
 /act-logs
 /ci-*-logs
 /ci-*-results
