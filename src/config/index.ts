@@ -31,7 +31,7 @@ export const ci = {
 };
 
 export const test = {
-  verboseLogs: process.env.VERBOSE_TEST_LOGS === "true",
+  verboseLogs: env.VERBOSE_TEST_LOGS === "true",
   logLevel: (process.env.LOG_LEVEL ?? "INFO").toUpperCase(),
 };
 
