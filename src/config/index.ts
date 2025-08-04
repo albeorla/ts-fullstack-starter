@@ -19,7 +19,7 @@ export const auth = {
     id: env.AUTH_DISCORD_ID,
     secret: env.AUTH_DISCORD_SECRET,
   },
-  enableTestAuth: env.ENABLE_TEST_AUTH === "true",
+  enableTestAuth: process.env.ENABLE_TEST_AUTH === "true",
 };
 
 export const database = {
@@ -31,7 +31,7 @@ export const ci = {
 };
 
 export const test = {
-  verboseLogs: env.VERBOSE_TEST_LOGS === "true",
+  verboseLogs: process.env.VERBOSE_TEST_LOGS === "true",
   logLevel: (process.env.LOG_LEVEL ?? "INFO").toUpperCase(),
 };
 

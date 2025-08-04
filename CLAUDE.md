@@ -107,6 +107,40 @@ src/
 
 5. **Component Architecture**: shadcn/ui components in `src/components/ui/` use Radix UI primitives with Tailwind CSS v4 styling.
 
+6. **Configuration Management**: Centralized configuration pattern with consolidated tooling configs:
+   - **Runtime Config**: All application configuration centralized in `src/config/index.ts`
+   - **Environment Variables**: Validated in `src/env.js` using T3 env
+   - **Tool Configs**: Consolidated in `package.json` where possible (prettier, postcss, lint-staged, prisma seed)
+   - **Complex Configs**: Remain as separate files when appropriate (eslint, typescript, playwright)
+
+## Configuration Consolidation Strategy
+
+The project follows a strategic approach to configuration management:
+
+### Consolidated in package.json:
+- **Prettier**: Simple Tailwind CSS plugin configuration
+- **PostCSS**: Simple Tailwind CSS plugin configuration  
+- **lint-staged**: Pre-commit formatting rules
+- **Prisma**: Database seed script configuration
+
+### Centralized in src/config/index.ts:
+- **Application Settings**: Port, environment, feature flags
+- **Authentication**: Discord OAuth configuration
+- **Database**: Connection settings
+- **Testing**: Log levels and CI configurations
+
+### Separate Configuration Files (Complex):
+- **ESLint** (`eslint.config.js`): Complex TypeScript rules and Next.js integration
+- **TypeScript** (`tsconfig.json`): Compiler options and path aliases  
+- **Playwright** (`playwright.config.ts`): Test configuration (uses centralized config)
+- **Next.js** (`next.config.js`): Minimal build configuration
+
+### Direct process.env Usage (Appropriate):
+- Platform-specific variables (VERCEL_URL, CI, PORT)
+- Special npm variables (npm_package_version)
+- Node.js environment checking (NODE_ENV)
+- Test framework variables (PLAYWRIGHT_SHARD)
+
 ## Test Logging System
 
 The project uses a centralized logging system for E2E tests with configurable verbosity:
