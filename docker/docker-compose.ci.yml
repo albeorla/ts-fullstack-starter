@@ -26,8 +26,8 @@ services:
   # Code Quality Check Service (mirrors GitHub Actions quality job)
   quality-check:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     environment:
       - NODE_ENV=test
       - CI=true
@@ -57,8 +57,8 @@ services:
   # Unit & Integration Tests Service (mirrors GitHub Actions test job)
   unit-tests:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     environment:
       - NODE_ENV=test
       - CI=true
@@ -94,8 +94,8 @@ services:
   # E2E Tests Service (mirrors GitHub Actions e2e job)
   e2e-tests:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     environment:
       - NODE_ENV=test
       - CI=true
@@ -137,8 +137,8 @@ services:
   # Security Audit Service (mirrors GitHub Actions security job)  
   security-audit:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     environment:
       - NODE_ENV=test
       - CI=true
@@ -163,8 +163,8 @@ services:
   # Build Service (mirrors GitHub Actions build job)
   build-check:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     environment:
       - NODE_ENV=production
       - CI=true
@@ -192,8 +192,8 @@ services:
   # Parallel Test Runner (runs multiple test suites simultaneously)
   parallel-runner:
     build: 
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     environment:
       - NODE_ENV=test
       - CI=true

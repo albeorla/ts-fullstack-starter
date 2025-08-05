@@ -13,6 +13,12 @@
 /playwright-report
 /test-results
 
+# build artifacts and logs
+/act-logs
+/ci-*-logs
+/ci-*-results
+*.log
+
 # database
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
@@ -67,3 +73,21 @@ node_modules/.cache
 .cursor/rules/todo2.mdc
 .cursor/mcp.json
 .todo2/
+
+# Docker build context
+.dockerignore
+
+# Additional cache directories
+.turbo
+.swc
+*.tsbuildinfo
+.tsbuildinfo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

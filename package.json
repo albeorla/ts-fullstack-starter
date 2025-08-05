@@ -118,6 +118,11 @@
   "prettier": {
     "plugins": ["prettier-plugin-tailwindcss"]
   },
+  "postcss": {
+    "plugins": {
+      "@tailwindcss/postcss": {}
+    }
+  },
   "ct3aMetadata": {
     "initVersion": "7.39.3"
   },

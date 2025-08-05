@@ -4,103 +4,51 @@ Modern full-stack TypeScript application with authentication, RBAC, and a comple
 
 ## 🚀 Tech Stack
 
-This project uses cutting-edge technologies:
+- **Framework**: Next.js 15 with React 19 and App Router
+- **Styling**: Tailwind CSS v4 + complete shadcn/ui component suite
+- **Backend**: tRPC with type-safe APIs and RBAC system
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js v5 with Discord OAuth
+- **Testing**: Playwright E2E testing
 
-- **Framework**: Next.js ^15.0.1-canary.0 with React ^19.1.0
-- **Styling**: Tailwind CSS ^4.1.11 + shadcn/ui (complete suite including Button, Card, Table, etc.)
-- **Backend**: tRPC with RBAC routers (user, role, permission)
-- **Database**: PostgreSQL + Prisma ORM ^6.11.1 (with RBAC schema)
-- **Authentication**: NextAuth.js ^5.0.0 with Discord OAuth
-- **Testing**: Playwright ^1.50.0 for E2E (run via `yarn test:e2e:ci --max-failures=0 --reporter=console`)
+## ✨ Key Features
 
-## ✨ Features
-- Role-Based Access Control (RBAC) with admin panels for users, roles, and permissions
-- Dashboard with responsive UI and theme toggle
-- Profile settings and authentication flows
+- **Role-Based Access Control (RBAC)** with admin panels for users, roles, and permissions
+- **Complete shadcn/ui Implementation** with 25+ pre-configured components
+- **Responsive Dashboard** with theme toggle and user management  
+- **Docker Support** for development and deployment
+- **Comprehensive Testing** with automated E2E test suite
 
-## ✨ shadcn/ui Implementation
-
-This project showcases a **production-ready shadcn/ui setup** with:
-
-- **Tailwind v4**: Using the latest `@theme` directive for CSS variables
-- **Complete Component Suite**: All major shadcn/ui components pre-installed
-- **Modern Variants**: Class Variance Authority (CVA) for component variants
-- **Proper Theming**: CSS variables with dark/light mode support
-- **Type Safety**: Full TypeScript integration across all components
-
-## Learn More
-
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
-
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## ⚙️ Local E2E Setup
-
-Prepare the repository for Playwright tests using the provided setup script:
+## 🏃‍♂️ Quick Start
 
 ```bash
-# Install browsers, generate Prisma client, and seed the database
-./setup-tests.sh
+# Install dependencies
+yarn install
 
-# Then run the CI mode tests
-yarn test:e2e:ci
+# Set up environment (copy .env.example to .env)
+cp .env.example .env
+
+# Start development server
+yarn dev
 ```
 
-This script requires internet access to download Playwright browsers.
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-## How do I deploy this?
+## 📚 Documentation
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+For comprehensive guides, visit the [docs](./docs/) directory:
 
-## 🐳 Docker Support
+- **[Getting Started](./docs/getting-started.md)** - Complete setup and installation guide
+- **[Development](./docs/development.md)** - Development workflow and coding standards  
+- **[Testing](./docs/testing.md)** - Testing strategy and E2E test execution
+- **[Deployment](./docs/deployment.md)** - Docker setup and production deployment
+- **[Architecture](./docs/architecture.md)** - Technical architecture and project structure
+- **[Features](./docs/features.md)** - RBAC system and feature documentation
 
-### Development with Docker
-```bash
-# Run development environment with hot reload
-docker compose up
+## 📈 Learn More
 
-# Run in detached mode
-docker compose up -d
-```
+To learn more about the [T3 Stack](https://create.t3.gg/), check out the [documentation](https://create.t3.gg/) and [tutorials](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available).
 
-### E2E Testing with Docker
-Run the Playwright test suite inside Docker with a bundled PostgreSQL database:
+---
 
-```bash
-# Run E2E tests in Docker (uses .env.test)
-yarn test:e2e:docker
-
-# Or manually with docker compose
-docker compose up --build --exit-code-from e2e e2e
-
-# View test results
-ls -la playwright-report/
-ls -la test-results/
-```
-
-The `docker-compose.yml` file provisions a `postgres:15` container and a test runner image based on the official Playwright image, ensuring consistent results locally and in CI.
-
-### Docker Commands
-```bash
-# Stop all containers
-docker-compose down
-
-# Remove volumes (clean database)
-docker-compose down -v
-
-# View logs
-docker-compose logs -f [service_name]
-
-# Build without cache
-docker-compose build --no-cache
-```
-
-Our GitHub Actions workflow uses the same command to run E2E tests in the pipeline.
-
-## ⚙️ CI/CD
-See the optimized workflow in .github/workflows/ci-optimized.yml for change detection, caching, and E2E testing with Docker.
-
-Last Updated: October 2024
+**Last Updated**: January 2025
