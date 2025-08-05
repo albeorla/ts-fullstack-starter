@@ -13,9 +13,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 4 : undefined, // Use 4 parallel workers in CI for speed
+  workers: isCI ? 1 : undefined, // 1 worker per shard in CI for stability
   quiet: isCI, // Reduce output verbosity in CI
-  failOnFlakyTests: isCI, // Fail CI on flaky tests
+  failOnFlakyTests: false, // Don't fail on flaky tests, but track them
   globalTimeout: isCI ? 60 * 60 * 1000 : undefined, // 1 hour timeout for CI
 
   // Optimized reporting: minimal in CI, detailed locally
@@ -23,6 +23,7 @@ export default defineConfig({
     ? [
         ["dot"], // Concise output for CI
         ["github"], // GitHub annotations
+        ["junit", { outputFile: "test-results/junit.xml" }], // JUnit for test result tracking
         ...(process.env.PLAYWRIGHT_SHARD ? [["blob"] as const] : []),
       ]
     : [

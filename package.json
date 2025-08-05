@@ -33,8 +33,12 @@
     "test:e2e:performance": "dotenv -e .env.test -- playwright test --reporter=json",
     "test:e2e:quick": "dotenv -e .env.test -- playwright test --grep-invert='@slow'",
     "test:e2e:slow": "dotenv -e .env.test -- playwright test --grep='@slow'",
+    "test:e2e:shard": "./scripts/test-e2e-sharded.sh",
     "coverage:merge": "mkdir -p coverage && echo 'Coverage merging placeholder'",
-    "coverage:report": "echo 'Coverage report placeholder'"
+    "coverage:report": "echo 'Coverage report placeholder'",
+    "ci:local": "./scripts/ci-local-check.sh",
+    "ci:validate": "concurrently -n type,lint,fmt -c blue,yellow,green \"yarn typecheck\" \"yarn lint\" \"yarn format:check\"",
+    "audit:fix": "yarn-audit-fix --force"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",

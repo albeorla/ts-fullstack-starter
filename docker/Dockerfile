@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.54.1-jammy
+FROM mcr.microsoft.com/playwright:v1.54.1-jammy AS base
 
 WORKDIR /app
 
@@ -9,25 +9,22 @@ RUN apt-get update -qq && \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Copy package files first for better caching
-COPY package*.json ./
-COPY yarn.lock ./
+# Copy only dependency files for better layer caching
+COPY package.json yarn.lock ./
 
-# Copy prisma schema for postinstall script
+# Install dependencies with cache mount for yarn
+RUN --mount=type=cache,target=/root/.cache/yarn \
+    yarn install --frozen-lockfile --prefer-offline
+
+# Copy prisma schema and generate client
 COPY prisma ./prisma
+RUN yarn prisma generate
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
-
-# Copy application code
+# Copy application code as late as possible
 COPY . .
 
-# Copy and set up entrypoint script
-COPY scripts/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# Generate Prisma client
-RUN yarn prisma generate
+# Entrypoint script is already copied with COPY . .
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # Set default environment
 ENV NODE_ENV=test
@@ -37,4 +34,4 @@ ENV PORT=3001
 EXPOSE 3000 3001
 
 # Use entrypoint for flexible startup
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
