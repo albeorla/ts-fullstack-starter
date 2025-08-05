@@ -50,12 +50,19 @@ setup("authenticate", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
+    // Debug: Log the cookies that were set
+    const cookies = await context.cookies();
+    logger.debug(
+      "Cookies set:",
+      cookies.map((c) => ({ name: c.name, domain: c.domain, path: c.path })),
+    );
+
     // Verify we're logged in by checking for the dashboard greeting or key dashboard elements
-    const greetingText = await page.locator(
+    const greetingText = page.locator(
       "text=/Good (morning|afternoon|evening)/i",
     );
-    const dashboardHeading = await page.locator("h1");
-    const accountStatusCard = await page.locator("text=Account Status");
+    const dashboardHeading = page.locator("h1");
+    const accountStatusCard = page.locator("text=Account Status");
 
     const isGreetingVisible = await greetingText
       .isVisible({ timeout: 5000 })

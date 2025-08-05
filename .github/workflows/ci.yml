@@ -1,0 +1,200 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+  checks: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DATABASE_URL: postgresql://postgres:postgres@postgres:5432/test_db
+  AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'test-secret-for-ci' }}
+  NEXTAUTH_URL: http://localhost:3001
+  AUTH_DISCORD_ID: ${{ secrets.AUTH_DISCORD_ID || 'test-client-id' }}
+  AUTH_DISCORD_SECRET: ${{ secrets.AUTH_DISCORD_SECRET || 'test-client-secret' }}
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.filter.outputs.source }}
+      tests: ${{ steps.filter.outputs.tests }}
+      docs: ${{ steps.filter.outputs.docs }}
+      deps: ${{ steps.filter.outputs.deps }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          base: 'main'
+          filters: |
+            source:
+              - 'src/**'
+              - 'public/**'
+              - 'prisma/**'
+              - 'next.config.*'
+              - 'eslint.config.*'
+              - 'tsconfig.json'
+              - 'package.json'
+              - 'yarn.lock'
+              - 'docker/**'
+            tests:
+              - 'e2e/**'
+              - 'playwright.config.ts'
+            docs:
+              - '**/*.md'
+              - 'docs/**'
+              - '.github/**/*.md'
+            deps:
+              - 'package.json'
+              - 'yarn.lock'
+
+  build_image:
+    name: Build App Image
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.source == 'true' || needs.changes.outputs.tests == 'true' || needs.changes.outputs.deps == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute tags
+        id: vars
+        run: |
+          REF=${GITHUB_REF##*/}
+          TAGS="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7}"
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            TAGS="$TAGS,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          fi
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAGS="$TAGS,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${REF}"
+          fi
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+      - name: Build (no push on PR)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: false
+          tags: ${{ steps.vars.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  e2e:
+    name: E2E in Docker
+    runs-on: ubuntu-latest
+    needs: [changes, build_image]
+    if: needs.changes.outputs.source == 'true' || needs.changes.outputs.tests == 'true'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5433:5432
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull built image (if available)
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7} || true
+      - name: Build image locally if pull failed
+        run: |
+          if ! docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7} > /dev/null 2>&1; then
+            docker build -t e2e-test:latest -f docker/Dockerfile .
+          else
+            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7} e2e-test:latest
+          fi
+      - name: Run E2E
+        run: |
+          docker run --rm --network host \
+            -e MODE=test \
+            -e DATABASE_URL=postgresql://postgres:postgres@localhost:5433/test_db \
+            -e AUTH_SECRET=${{ env.AUTH_SECRET }} \
+            -e NEXTAUTH_URL=${{ env.NEXTAUTH_URL }} \
+            -e AUTH_DISCORD_ID=${{ env.AUTH_DISCORD_ID }} \
+            -e AUTH_DISCORD_SECRET=${{ env.AUTH_DISCORD_SECRET }} \
+            -e ENABLE_TEST_AUTH=true \
+            -e CI=true \
+            -e LOG_LEVEL=INFO \
+            -v ${{ github.workspace }}/coverage:/app/coverage \
+            -v ${{ github.workspace }}/playwright-report:/app/playwright-report \
+            -v ${{ github.workspace }}/test-results:/app/test-results \
+            e2e-test:latest
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: |
+            coverage
+            playwright-report
+            test-results
+          retention-days: 14
+
+  quality_gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [changes, e2e]
+    if: always() && (needs.changes.outputs.source == 'true' || needs.changes.outputs.tests == 'true')
+    steps:
+      - name: Summarize
+        run: |
+          echo "E2E: ${{ needs.e2e.result }}"
+          if [[ "${{ needs.e2e.result }}" == "failure" ]]; then exit 1; fi
+
+  release:
+    name: Release & PR Comments
+    runs-on: ubuntu-latest
+    needs: [build_image, e2e]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: PR comment with results
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "\
+          CI run complete.\n\
+          - E2E: ${{ needs.e2e.result }}\n\
+          - Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7 }"
+      - name: Create GitHub Release on tag
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${GITHUB_REF##*/} --verify-tag \
+            --title "Release ${GITHUB_REF##*/}" \
+            --notes "Automated release. Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}"

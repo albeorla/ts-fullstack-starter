@@ -49,7 +49,8 @@ if [ "$MODE" = "test" ]; then
   echo "Running E2E tests..."
   if [ -n "$PLAYWRIGHT_SHARD" ]; then
     echo "Running E2E tests with sharding: $PLAYWRIGHT_SHARD"
-    exec CI=true dotenv -e .env.test -- playwright test --reporter=dot --max-failures=1 --shard="$PLAYWRIGHT_SHARD"
+    # Use the same command structure but with shard parameter
+    exec CI=true dotenv -e .env.test -- npx playwright test --reporter=dot,junit --max-failures=1 --shard="$PLAYWRIGHT_SHARD"
   else
     echo "Running E2E tests without sharding"
     exec yarn test:e2e:ci
