@@ -1,7 +1,3 @@
-import dotenvFlow from "dotenv-flow";
-
-dotenvFlow.config({ silent: true });
-
 import { env } from "~/env";
 
 export const app = {
