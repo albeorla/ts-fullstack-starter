@@ -22,6 +22,10 @@ RUN yarn install --frozen-lockfile
 # Copy application code
 COPY . .
 
+# Copy and set up entrypoint script
+COPY scripts/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Generate Prisma client
 RUN yarn prisma generate
 
@@ -31,9 +35,6 @@ ENV PORT=3001
 
 # Expose ports
 EXPOSE 3000 3001
-
-# Make entrypoint executable
-RUN chmod +x /app/entrypoint.sh
 
 # Use entrypoint for flexible startup
 ENTRYPOINT ["/app/entrypoint.sh"]
