@@ -12,13 +12,14 @@ RUN apt-get update -qq && \
 # Copy only dependency files for better layer caching
 COPY package.json yarn.lock ./
 
+# Copy prisma schema BEFORE installing dependencies
+# This is needed because postinstall script runs prisma generate
+COPY prisma ./prisma
+
 # Install dependencies with cache mount for yarn
+# The postinstall script will generate the Prisma client
 RUN --mount=type=cache,target=/root/.cache/yarn \
     yarn install --frozen-lockfile --prefer-offline
-
-# Copy prisma schema and generate client
-COPY prisma ./prisma
-RUN yarn prisma generate
 
 # Copy application code as late as possible
 COPY . .
