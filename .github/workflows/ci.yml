@@ -21,7 +21,7 @@ env:
   NODE_VERSION: '20'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+  DATABASE_URL: postgresql://postgres:postgres@postgres:5432/test_db
   AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'test-secret-for-ci' }}
   NEXTAUTH_URL: http://localhost:3000
   AUTH_DISCORD_ID: ${{ secrets.AUTH_DISCORD_ID || 'test-client-id' }}
@@ -43,6 +43,7 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
+          base: 'main'
           filters: |
             source:
               - 'src/**'
@@ -83,19 +84,21 @@ jobs:
         id: vars
         run: |
           REF=${GITHUB_REF##*/}
-          echo "sha=sha-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          if [[ "$GITHUB_REF" == refs/heads/main ]]; then echo "latest=latest" >> $GITHUB_OUTPUT; fi
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then echo "tag=${REF}" >> $GITHUB_OUTPUT; fi
+          TAGS="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7}"
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            TAGS="$TAGS,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          fi
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAGS="$TAGS,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${REF}"
+          fi
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
       - name: Build (no push on PR)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.latest || '' }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag || '' }}
+          push: false
+          tags: ${{ steps.vars.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -116,7 +119,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+          - 5433:5432
     steps:
       - uses: actions/checkout@v4
       - name: Pull built image (if available)
@@ -133,7 +136,7 @@ jobs:
         run: |
           docker run --rm --network host \
             -e MODE=test \
-            -e DATABASE_URL=${{ env.DATABASE_URL }} \
+            -e DATABASE_URL=postgresql://postgres:postgres@localhost:5433/test_db \
             -e AUTH_SECRET=${{ env.AUTH_SECRET }} \
             -e NEXTAUTH_URL=${{ env.NEXTAUTH_URL }} \
             -e AUTH_DISCORD_ID=${{ env.AUTH_DISCORD_ID }} \
@@ -177,8 +180,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - name: Install gh
-        uses: cli/cli-action@v2
+      
       - name: PR comment with results
         if: github.event_name == 'pull_request'
         env:
